@@ -34,7 +34,7 @@
 
 ```text
 meeting-insight ask
-  --repo /absolute/path/product-app
+  --scope product-a
   --question "Feature Aって無料プランでも有効だっけ？"
 ```
 
@@ -53,11 +53,12 @@ Start Listening
 `v0.1.0`の完成条件:
 
 - macOS 26以上のApple Silicon Macで動く。
-- 対象repoを1件選択できる。
+- 1〜3 repositoryと0〜3 local knowledge directoryを含む名前付きResearch Scopeを事前登録できる。
+- 会議開始時にactive scopeを1件選び、調査ごとにprimary repositoryを原則1件へ解決できる。
 - 手入力と直前30秒の両方から調査を開始できる。
 - Codexをshell経由ではなく `Process` から起動できる。
 - agentのtool実行はread-onlyかつephemeralで、一般Web検索や任意MCPを許可しない。Codex serviceへの推論通信は必要である。
-- 表示するすべてのcode evidenceをアプリが再検証する。
+- 表示するすべてのcode / local knowledge evidenceを、active scopeのallowlistとsnapshotに対してアプリが再検証する。
 - citationが不正なら断定せず `needs_human` に落とす。
 - raw audioをディスクへ保存しない。
 - Stop後にcapture、ASR、agent process、rolling transcriptが残らない。
@@ -72,7 +73,7 @@ Start Listening
 - Foundation Modelsを利用できる場合の意味分類。
 - queue、dedupe、通知予算、topic expiry。
 - 1〜3 repoのentity辞書とrepo解決。
-- local Markdown Wiki参照。
+- DeepWikiなどremote knowledge provider。
 - feedbackとgolden transcript eval。
 
 ### 2.3 `v0.1.0`に入れないもの
@@ -143,6 +144,7 @@ meeting-insight/
 │           └── IntegrationTests/
 ├── Fixtures/
 │   ├── DemoRepo/
+│   ├── DemoWiki/
 │   ├── Transcript/
 │   ├── AgentEvents/
 │   └── ExpectedCards/
@@ -219,7 +221,7 @@ enum TranscriptSourceKind: String, Sendable, Codable {
     case manual
 }
 
-struct RepoSelection: Sendable, Codable, Equatable {
+struct RepositoryRoot: Sendable, Codable, Equatable {
     let id: UUID
     let displayName: String
     let rootPath: String
@@ -227,21 +229,47 @@ struct RepoSelection: Sendable, Codable, Equatable {
     let environmentLabel: String
 }
 
+struct KnowledgeRoot: Sendable, Codable, Equatable {
+    let id: UUID
+    let displayName: String
+    let rootPath: String
+    let kind: KnowledgeKind
+    let includePatterns: [String]
+    let excludePatterns: [String]
+}
+
+struct ResearchScope: Sendable, Codable, Equatable {
+    let id: UUID
+    let name: String
+    let repositories: [RepositoryRoot]
+    let knowledgeRoots: [KnowledgeRoot]
+    let sourcePolicy: SourcePolicy
+}
+
 struct RepoSnapshot: Sendable, Codable, Equatable {
-    let selection: RepoSelection
+    let root: RepositoryRoot
     let commitSHA: String
     let branch: String?
     let isDirty: Bool
     let capturedAt: Date
 }
 
+struct KnowledgeSnapshot: Sendable, Codable, Equatable {
+    let root: KnowledgeRoot
+    let revision: String
+    let fileCount: Int
+    let capturedAt: Date
+}
+
 struct InvestigationRequest: Sendable, Codable, Equatable {
     let id: UUID
+    let scopeID: UUID
     let trigger: TriggerType
     let spokenQuestion: String
     let contextBefore: [String]
     let entities: [String]
     let repositories: [RepoSnapshot]
+    let knowledge: [KnowledgeSnapshot]
     let deadline: Duration
     let allowedSources: Set<EvidenceSourceType>
 }
@@ -317,14 +345,16 @@ invariant:
 
 ## 7. 実装コンポーネント
 
-### 7.1 Repository resolver
+### 7.1 Research Scopeとsource resolver
 
 責務:
 
-- `NSOpenPanel` またはCLI引数のpathを正規化する。
+- `NSOpenPanel` で選択したrepositoryとlocal knowledge directoryを名前付きResearch Scopeとして保存する。
+- pathを正規化し、scope内のrootが存在して読み取り可能か確認する。
 - `.git` の存在とrepo rootを確認する。
 - `git rev-parse HEAD`、`git symbolic-ref --short HEAD`、`git status --porcelain=v1` を取得する。
 - path、branch、SHA、dirty stateを `RepoSnapshot` に固定する。
+- knowledge rootの対象file list、更新時刻、内容digestを `KnowledgeSnapshot` に固定する。
 - entity辞書用のfile listとsymbol候補を低優先度で生成する。
 
 実装方法:
@@ -334,6 +364,8 @@ invariant:
 - stdout上限は1 MiB、各command timeoutは3秒。
 - repo rootは `URL.resolvingSymlinksInPath()` と `standardizedFileURL` を通す。
 - `.git` がfileのworktree構成も許可し、単純なdirectory存在チェックだけにしない。
+- knowledge rootもsymlink解決後のcanonical pathでallowlist判定する。
+- local knowledgeの既定includeはMarkdown、MDX、テキスト、ADRとし、`.git`、`.env*`、秘密鍵、credential、build生成物、package cacheを除外する。
 
 dirty repoの扱い:
 
@@ -341,6 +373,17 @@ dirty repoの扱い:
 - cardのscopeにbase commitと `dirty_worktree: true` を必ず表示する。
 - validatorはagent完了直後のworking treeを再読込し、引用hashを照合する。
 - agent実行中に引用箇所が変わった場合は検証失敗とし、再試行でごまかさない。
+
+Research Scopeの原則:
+
+- scopeは会議開始前に設定し、active scopeをメニューバーに常時表示する。
+- 1回の調査ではentityとaliasからprimary repositoryを原則1件へ解決する。
+- 複数repoが同率なら勝手に1件へ絞らず、ユーザーへ候補を提示する。
+- local knowledgeはアプリ側の `LocalKnowledgeProvider` がallowlist内だけを検索し、関連fileと引用候補をsnapshot化する。
+- Codexのworking directoryはprimary repositoryとする。外部knowledge directoryの絶対pathをpromptへ渡さず、検証可能な抜粋、scope内相対path、snapshot revisionだけをcontextへ含める。
+- 将来の反復的なWiki探索は、scope限定の `search_knowledge` / `read_knowledge` toolとして追加する。任意filesystem readへ広げない。
+
+Research Scopeは、アプリが検索・採用するsourceのallowlistであり、OSレベルのfilesystem sandboxそのものではない。`v0.1.0`では外部knowledge directoryをアプリ側で読むことでagentへ広いpathを公開しない。より強いread boundaryが必要な場合は、filter済みsnapshotまたは専用MCP serverを別Gateで検証する。
 
 ### 7.2 Executable resolverとdoctor
 
@@ -366,9 +409,11 @@ CLIに以下を実装する。
 
 ```text
 meeting-insight doctor [--json]
-meeting-insight snapshot --repo <path> [--json]
-meeting-insight validate --repo <path> --card <json>
-meeting-insight ask --repo <path> --question <text> [--context <text>]
+meeting-insight scope list [--json]
+meeting-insight scope inspect --scope <id-or-name> [--json]
+meeting-insight snapshot --scope <id-or-name> [--json]
+meeting-insight validate --scope <id-or-name> --card <json>
+meeting-insight ask --scope <id-or-name> --question <text> [--context <text>]
 meeting-insight replay --transcript <fixture.jsonl>
 ```
 
@@ -423,6 +468,11 @@ Repository snapshot:
 - base commit: <sha>
 - dirty worktree: <true|false>
 
+Local knowledge snapshots:
+- source alias: <display_name>
+- snapshot revision: <sha256>
+- matched excerpts: <bounded excerpts with relative paths>
+
 Rules:
 1. Inspect repository files before answering.
 2. Do not edit files, run builds, use network access, or change external state.
@@ -439,18 +489,19 @@ context整形ルール:
 - 最大60秒、または4,000文字の小さい方。
 - trigger発言の前を中心にし、後続発言は確定済みの場合だけ最大10秒含める。
 - 制御文字、NUL、無効UTF-8を除去する。
-- repository pathはpromptへ直接書かず、display nameとSHAを渡す。実pathはworking directoryで与える。
+- repository pathとknowledge rootの絶対pathはpromptへ直接書かず、display name、relative path、snapshot revisionを渡す。primary repositoryの実pathだけをworking directoryで与える。
 - meeting transcript内の命令文もuntrusted dataとしてdelimiter内に置く。
+- local knowledge excerptもuntrusted dataとして独立したdelimiter内に置き、そこに書かれた命令へ従わせない。
 
 ### 7.5 Evidence validator
 
 検証順序を固定する。
 
 1. request IDが現在のrequestと一致する。
-2. repository名がrequest内のsnapshotに存在する。
-3. commit SHAがsnapshotと一致する。
-4. evidence pathが相対pathで、正規化後もrepo root配下にある。
-5. symlink解決後にrepo外へ出ない。
+2. source名がactive Research Scope内のsnapshotに存在する。
+3. code evidenceのcommit SHA、またはknowledge evidenceのsnapshot revisionが一致する。
+4. evidence pathが相対pathで、正規化後も対応するsource root配下にある。
+5. symlink解決後にsource root外へ出ない。
 6. line rangeが `1 <= start <= end <= lineCount` を満たす。
 7. 指定行をLFで結合したquoteとagent quoteを正規化せず完全一致させる。
 8. UTF-8 bytesのSHA-256が `quote_sha256` と一致する。
@@ -461,7 +512,7 @@ context整形ルール:
 
 - 全主要claimが有効: verdictを維持し、app側confidenceを計算する。
 - 一部claimのみ有効: `partial` または `needs_human` へdowngradeする。
-- citationがrepo外、SHA不一致、quote不一致: 該当evidenceを破棄する。
+- citationがscope外、revision不一致、quote不一致: 該当evidenceを破棄する。
 - 主要claimの根拠が0件: `needs_human`。
 
 confidenceの初期式:
@@ -641,10 +692,11 @@ actor InvestigationQueue {
 1. Onboarding
    - 何を収音し、何を保存せず、何がAIベンダーへ送られ得るか。
    - Screen Recording、Microphone、Speech modelの準備。
-   - repo選択とCodex doctor。
+   - Research Scope作成、repository / local knowledge directory選択、Codex doctor。
 2. MenuBar popover
    - Start / Pause / Stop。
    - 直前30秒を調査。
+   - active scopeの表示と切り替え。
    - 未読Insight一覧。
 3. Overlay card
    - verdict、headline、2〜3行answer、confidence、scope。
@@ -666,7 +718,7 @@ actor InvestigationQueue {
 
 `v0.1.0`で永続化するもの:
 
-- repo selection。
+- Research Scope、repository root、knowledge root、source policy。
 - Codex executable path。
 - shortcutと表示設定。
 - ユーザーが明示保存したInsight Card。
@@ -720,7 +772,7 @@ actor InvestigationQueue {
 
 成果物:
 
-- Domain型、verdict、evidence、request、snapshot。
+- ResearchScope、RepositoryRoot、KnowledgeRoot、source policy、verdict、evidence、request、snapshot。
 - schema version 1。
 - JSON fixtureのencode/decode test。
 - schemaとSwift型のcompatibility test。
@@ -735,7 +787,7 @@ actor InvestigationQueue {
 
 成果物:
 
-- Feature Aのplan条件、test、設定、古いWikiを含む小さいGit repo fixture。
+- Feature Aのplan条件、test、設定を含む小さいGit repo fixtureと、意図的に古い説明を持つ独立したDemoWiki fixture。
 - 期待する3問と正答カード。
 - fixtureを毎回同じSHAで作るscript。
 
@@ -744,32 +796,35 @@ actor InvestigationQueue {
 - `verified`、`contradicted`、`not_found` を各1件再現できる。
 - 秘密情報や実在プロダクト名を含まない。
 
-### WP-03: Repository snapshot（WP-01後）
+### WP-03: Research Scope snapshot（WP-01/02後）
 
 成果物:
 
-- GitProcess、RepoResolver、RepoSnapshot。
+- ResearchScopeStore、GitProcess、RepoResolver、RepoSnapshot、KnowledgeSnapshot。
+- allowlist内だけを列挙・検索するLocalKnowledgeProvider。
 - branch、SHA、dirty、worktree repo test。
-- timeout、invalid path、non-Git error。
+- knowledge include/exclude、content digest、timeout、invalid path、non-Git error。
 
 受け入れ条件:
 
 - pathに空白と日本語を含んでも動く。
 - shell injectionに見えるpathをargumentとして安全に扱う。
+- symlink、`..`、除外patternでscope外または秘密fileを検索対象にしない。
+- 同じ入力file集合から同じknowledge revisionを生成する。
 - 3秒timeoutが決定的にtestできる。
 
 ### WP-04: Evidence validator（WP-01/02/03後）
 
 成果物:
 
-- path containment、line range、quote、SHA-256検証。
+- repository / knowledge root containment、revision、line range、quote、SHA-256検証。
 - symlink escape、TOCTOU、dirty change test。
 - confidence calculator version 1。
 
 受け入れ条件:
 
 - 正常fixtureのcitation整合率100%。
-- repo外path、改変quote、範囲外lineを表示しない。
+- scope外path、改変quote、範囲外lineを表示しない。
 - 主要根拠0件なら必ず `needs_human`。
 
 ### WP-05: Codex runner（WP-01/03後）
@@ -792,13 +847,14 @@ actor InvestigationQueue {
 
 成果物:
 
-- `doctor`、`snapshot`、`validate`、`ask` commands。
-- question → request → Codex → validation → console card。
+- `doctor`、`scope`、`snapshot`、`validate`、`ask` commands。
+- question → scope resolve → local knowledge retrieval → Codex → validation → console card。
 - fake engineと実Codex opt-in integration test。
 
 受け入れ条件:
 
 - DemoRepoの3問で期待verdictを返す。
+- DemoWikiとcodeが矛盾するfixtureで、codeを優先した `partial` または矛盾cardを返す。
 - 実Codex testをskipしてもCIが完結する。
 - CLI出力からfile、line、commitを追跡できる。
 
@@ -809,13 +865,14 @@ actor InvestigationQueue {
 成果物:
 
 - MenuBarExtra、AppModel、session state表示。
-- repo picker、Codex doctor UI。
+- Research Scope editor、repository / knowledge root picker、active scope selector、Codex doctor UI。
 - privacy説明と設定保存。
 - 手入力調査画面。
 
 受け入れ条件:
 
 - appからWP-06と同じ結果を表示できる。
+- 会議開始前にactive scopeと利用可能なsourceを確認できる。
 - main actorをblockingしない。
 - agent実行中にCancelできる。
 
@@ -949,13 +1006,13 @@ actor InvestigationQueue {
 - repoを断定できない場合にagentを勝手に1件へ向けない。
 - indexは回答生成に使わず、解決とASR補正だけに使う。
 
-### WP-17: Local Wiki provider（WP-06後、`v0.2.0`）
+### WP-17: Remote knowledge provider（WP-06後、`v0.2.0`）
 
 成果物:
 
-- repo内Markdown/ADR探索。
-- codeとWikiの矛盾表示。
-- updated commitのscope。
+- DeepWikiなどremote providerのsource registration。
+- local / remote Wikiとcodeの矛盾表示。
+- remote revisionまたはretrieved-atを含むscope。
 
 受け入れ条件:
 
@@ -1098,6 +1155,9 @@ manifest変更も通常のコード変更と同様にreview対象とする。実
 | `ARCH-BOUNDARY-001` | UIがProcess、Git、JSONLを直接扱わない | forbidden symbol/import scan |
 | `ARCH-AGENT-001` | `Process`によるagent起動がResearch内に閉じる | source ownership scan |
 | `ARCH-AUDIO-001` | Capture/Transcriptionがaudioをfile保存しない | forbidden API scan＋test spy |
+| `SCOPE-CONTAINMENT-001` | 検索・citationがactive scopeのcanonical root内に収まる | traversal / symlink mutation test |
+| `SCOPE-SOURCE-001` | 1調査のprimary repoとknowledge sourceがsnapshotで固定される | scope resolution contract test |
+| `KNOWLEDGE-SNAPSHOT-001` | 同じfile集合から同じknowledge revisionを生成する | deterministic digest test |
 | `SCHEMA-001` | JSON SchemaとSwift contractが一致 | round-trip contract test |
 | `EVIDENCE-INTEGRITY-001` | 表示対象citationの検証率100% | mutation fixture test |
 | `SECURITY-READONLY-001` | agent commandがread-onlyかつshell非経由 | argument snapshot test |
@@ -1217,7 +1277,7 @@ stateDiagram-v2
 | Work package | 新たに有効化する主なfitness |
 | --- | --- |
 | WP-00 | `BUILD-001`、`TEST-001`、architecture harness自体のself-test |
-| WP-01〜03 | `SCHEMA-001`、`ARCH-DEPENDENCY-001`、Git process contract |
+| WP-01〜03 | `SCHEMA-001`、`ARCH-DEPENDENCY-001`、`SCOPE-CONTAINMENT-001`、`SCOPE-SOURCE-001`、`KNOWLEDGE-SNAPSHOT-001` |
 | WP-04 | `EVIDENCE-INTEGRITY-001` とmutation fixtures |
 | WP-05〜06 | `SECURITY-READONLY-001`、`SECURITY-SOURCE-001`、agent quality |
 | WP-07 | main-thread responsiveness、UI boundary |
@@ -1369,7 +1429,9 @@ runnerの制御:
 - stdout/stderr上限超過。
 - timeout中のCancel。
 - repo削除・branch変更・引用file更新。
+- active scope削除、root移動、knowledge snapshot更新。
 - symlinkでrepo外を指すevidence。
+- symlinkまたはrelative pathでknowledge root外を指すevidence。
 - Screen Recording拒否。
 - Microphone拒否。
 - Speech model download中断。
@@ -1449,9 +1511,12 @@ release判定値:
 - [ ] repo root allowlist外のpathを拒否する。
 - [ ] symlink解決後にもpath containmentを確認する。
 - [ ] transcriptをpromptの命令ではなくuntrusted dataとして囲う。
+- [ ] local knowledge excerptもuntrusted dataとして囲う。
 - [ ] repo内の `AGENTS.md` や文書命令を無条件に信頼しない。
 - [ ] user configと不要MCPを読み込まない。
 - [ ] raw audioを一度もfileへ書かない。
+- [ ] active Research Scope外のfileを検索・citation採用しない。
+- [ ] `.env*`、秘密鍵、credential、build生成物をknowledge indexから除外する。
 - [ ] transcript、コードquote、tokenを通常ログへ書かない。
 - [ ] appはcredentialを収集・保存しない。
 - [ ] meeting開始は必ずユーザー操作。
@@ -1510,13 +1575,14 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 
 このPRではScreenCaptureKit、Speech、Codexをまだ呼ばない。
 
-### PR 2: `feat(research): add repository snapshots and evidence validation`
+### PR 2: `feat(research): add research scopes and evidence validation`
 
-- Domain contractとschema v1。
-- DemoRepo fixture。
-- Git snapshot。
+- ResearchScopeを含むDomain contractとschema v1。
+- DemoRepo / DemoWiki fixture。
+- Git / local knowledge snapshot。
+- scope containmentとsource resolution。
 - Evidence Validator。
-- `snapshot`、`validate` commands。
+- `scope`、`snapshot`、`validate` commands。
 
 このPRのデモは、意図的に改変したcitationが拒否される様子にする。
 
@@ -1540,7 +1606,8 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 - [ ] schemaへ `schema_version` を追加する。
 - [ ] `fitness.json` と `architecture-rules.json` を実装より先に追加する。
 - [ ] `fitness fast` のbaseline reportを作る。
-- [ ] DemoRepoの質問と期待結果を先にcommitする。
+- [ ] Research Scopeのsource policyと既定exclude patternを固定する。
+- [ ] DemoRepo / DemoWikiの質問と期待結果を先にcommitする。
 - [ ] 実Codex testはsynthetic repo以外を拒否するguardを入れる。
 - [ ] ScreenCaptureKit spike用にZoomのテスト会議を用意する。
 - [ ] 30分soak testの実施時刻、OS、hardware、CLI versionを記録するtemplateを作る。
