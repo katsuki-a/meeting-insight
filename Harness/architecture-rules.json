@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "allowed_dependencies": {
+    "MeetingInsightDomain": [],
+    "MeetingInsightRepository": ["MeetingInsightDomain"],
+    "MeetingInsightResearch": ["MeetingInsightDomain", "MeetingInsightRepository"],
+    "MeetingInsightCapture": ["MeetingInsightDomain"],
+    "MeetingInsightTranscription": ["MeetingInsightDomain"],
+    "MeetingInsightOrchestration": [
+      "MeetingInsightDomain",
+      "MeetingInsightRepository",
+      "MeetingInsightResearch",
+      "MeetingInsightTranscription"
+    ],
+    "MeetingInsightStorage": ["MeetingInsightDomain"],
+    "MeetingInsightCLI": ["MeetingInsightOrchestration"]
+  },
+  "forbidden_imports": {
+    "MeetingInsightDomain": ["SwiftUI", "AppKit", "ScreenCaptureKit", "Speech"],
+    "MeetingInsightResearch": ["SwiftUI", "AppKit", "ScreenCaptureKit", "Speech"],
+    "MeetingInsightCapture": ["SwiftUI", "MeetingInsightResearch"],
+    "MeetingInsightTranscription": ["SwiftUI", "MeetingInsightResearch"]
+  },
+  "forbidden_patterns": [
+    {
+      "id": "no-shell-agent-launch",
+      "modules": ["MeetingInsightResearch"],
+      "patterns": ["/bin/sh", "/bin/zsh", "bash -lc", "zsh -lc"]
+    },
+    {
+      "id": "no-raw-audio-write",
+      "modules": ["MeetingInsightCapture", "MeetingInsightTranscription"],
+      "patterns": ["AVAudioFile", "write(to:"]
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C10000000000000000000001 /* MeetingInsightApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* MeetingInsightApp.swift */; };
+		C10000000000000000000002 /* MeetingInsightAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* MeetingInsightAppTests.swift */; };
+		C10000000000000000000003 /* MeetingInsightOrchestration in Frameworks */ = {isa = PBXBuildFile; productRef = J10000000000000000000002 /* MeetingInsightOrchestration */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* MeetingInsightApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingInsightApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* MeetingInsightAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingInsightAppTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* MeetingInsight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingInsight.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000004 /* MeetingInsightAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingInsightAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000005 /* MeetingInsight.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeetingInsight.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D10000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C10000000000000000000003 /* MeetingInsightOrchestration in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D10000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000004 /* App */,
+				A10000000000000000000005 /* AppTests */,
+				A10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000003 /* MeetingInsight.app */,
+				B10000000000000000000004 /* MeetingInsightAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* MeetingInsightApp.swift */,
+				B10000000000000000000005 /* MeetingInsight.entitlements */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000005 /* AppTests */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000002 /* MeetingInsightAppTests.swift */,
+			);
+			path = AppTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* MeetingInsight */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = I10000000000000000000002 /* Build configuration list for PBXNativeTarget "MeetingInsight" */;
+			buildPhases = (
+				D10000000000000000000001 /* Sources */,
+				D10000000000000000000003 /* Frameworks */,
+				D10000000000000000000005 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = MeetingInsight;
+			packageProductDependencies = (
+				J10000000000000000000002 /* MeetingInsightOrchestration */,
+			);
+			productName = MeetingInsight;
+			productReference = B10000000000000000000003 /* MeetingInsight.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E10000000000000000000002 /* MeetingInsightAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = I10000000000000000000003 /* Build configuration list for PBXNativeTarget "MeetingInsightAppTests" */;
+			buildPhases = (
+				D10000000000000000000002 /* Sources */,
+				D10000000000000000000004 /* Frameworks */,
+				D10000000000000000000006 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = MeetingInsightAppTests;
+			productName = MeetingInsightAppTests;
+			productReference = B10000000000000000000004 /* MeetingInsightAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					E10000000000000000000001 = { CreatedOnToolsVersion = 26.3; };
+					E10000000000000000000002 = { CreatedOnToolsVersion = 26.3; };
+				};
+			};
+			buildConfigurationList = I10000000000000000000001 /* Build configuration list for PBXProject "MeetingInsight" */;
+			compatibilityVersion = "Xcode 16.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = A10000000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				J10000000000000000000001 /* XCLocalSwiftPackageReference "MeetingInsightKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E10000000000000000000001 /* MeetingInsight */,
+				E10000000000000000000002 /* MeetingInsightAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D10000000000000000000005 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (C10000000000000000000001 /* MeetingInsightApp.swift in Sources */);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (C10000000000000000000002 /* MeetingInsightAppTests.swift in Sources */);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1 $(inherited)";
+				LM_FILTER_WARNINGS = YES;
+				LM_SKIP_METADATA_EXTRACTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		F10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				LM_FILTER_WARNINGS = YES;
+				LM_SKIP_METADATA_EXTRACTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		G10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = App/MeetingInsight.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSUIElement = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsight;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		G10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = App/MeetingInsight.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSUIElement = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsight;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		H10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsightAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+		H10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsightAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		I10000000000000000000001 /* Build configuration list for PBXProject "MeetingInsight" */ = {isa = XCConfigurationList; buildConfigurations = (F10000000000000000000001 /* Debug */, F10000000000000000000002 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		I10000000000000000000002 /* Build configuration list for PBXNativeTarget "MeetingInsight" */ = {isa = XCConfigurationList; buildConfigurations = (G10000000000000000000001 /* Debug */, G10000000000000000000002 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		I10000000000000000000003 /* Build configuration list for PBXNativeTarget "MeetingInsightAppTests" */ = {isa = XCConfigurationList; buildConfigurations = (H10000000000000000000001 /* Debug */, H10000000000000000000002 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		J10000000000000000000001 /* XCLocalSwiftPackageReference "MeetingInsightKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/MeetingInsightKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		J10000000000000000000002 /* MeetingInsightOrchestration */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = J10000000000000000000001 /* XCLocalSwiftPackageReference "MeetingInsightKit" */;
+			productName = MeetingInsightOrchestration;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A10000000000000000000001 /* Project object */;
+}

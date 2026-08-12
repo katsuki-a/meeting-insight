@@ -8,4 +8,18 @@
 
 実装は期間見積もりではなく、test・architecture・privacy・citation integrityを適応度関数としてHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
-現時点は設計フェーズです。最初の実装は、macOS 26以上を対象にしたメニューバーアプリと、同じコアを使う開発用CLIを想定しています。
+現在はWP-00のbootstrapまで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、依存境界を検証するHarnessを含みます。
+
+## Build
+
+前提はXcode 26.3とSwift 6.2です。署名なしの初回buildとtestは次の入口で確認できます。
+
+```sh
+Scripts/bootstrap.sh
+Scripts/check.sh build
+Scripts/check.sh test
+Scripts/check.sh cli
+Scripts/fitness.sh fast
+```
+
+`fitness fast` はbuild、test、architecture、privacy static checkを実行し、機械可読reportを `.artifacts/fitness/latest.json` に生成します。

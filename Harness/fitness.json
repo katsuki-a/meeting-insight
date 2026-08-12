@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "fast": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"],
+    "full": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"],
+    "hardware": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"]
+  },
+  "checks": [
+    {
+      "id": "BUILD-001",
+      "kind": "hard_gate",
+      "runner": "Scripts/check.sh build",
+      "expect": { "exit_code": 0 }
+    },
+    {
+      "id": "TEST-001",
+      "kind": "hard_gate",
+      "runner": "Scripts/check.sh test",
+      "expect": { "exit_code": 0 }
+    },
+    {
+      "id": "ARCH-DEPENDENCY-001",
+      "kind": "hard_gate",
+      "runner": "Scripts/architecture-check.sh --self-test",
+      "expect": { "exit_code": 0 }
+    },
+    {
+      "id": "PRIVACY-STATIC-001",
+      "kind": "hard_gate",
+      "runner": "Scripts/check.sh privacy",
+      "expect": { "exit_code": 0 }
+    }
+  ]
+}

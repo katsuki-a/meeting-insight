@@ -749,6 +749,8 @@ actor InvestigationQueue {
 
 ### WP-00: Project bootstrap
 
+ステータス: 完了（2026-08-12）
+
 成果物:
 
 - macOS app target、local Swift Package、CLI executable target。
@@ -1600,12 +1602,12 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 ## 16. 実装開始チェックリスト
 
 - [ ] Apple Developer team、bundle ID、Developer ID配布方針を決める。
-- [ ] Xcodeのdeployment targetをmacOS 26.0にする。
-- [ ] Swift 6 language modeとStrict Concurrencyを有効にする。
-- [ ] package/module命名を本書どおりに作る。
+- [x] Xcodeのdeployment targetをmacOS 26.0にする。
+- [x] Swift 6 language modeとStrict Concurrencyを有効にする。
+- [x] package/module命名を本書どおりに作る。
 - [ ] schemaへ `schema_version` を追加する。
-- [ ] `fitness.json` と `architecture-rules.json` を実装より先に追加する。
-- [ ] `fitness fast` のbaseline reportを作る。
+- [x] `fitness.json` と `architecture-rules.json` を実装より先に追加する。
+- [x] `fitness fast` のbaseline reportを作る。
 - [ ] Research Scopeのsource policyと既定exclude patternを固定する。
 - [ ] DemoRepo / DemoWikiの質問と期待結果を先にcommitする。
 - [ ] 実Codex testはsynthetic repo以外を拒否するguardを入れる。

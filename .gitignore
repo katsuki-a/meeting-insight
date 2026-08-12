@@ -1,0 +1,6 @@
+.DS_Store
+.artifacts/
+.build/
+Packages/MeetingInsightKit/.build/
+xcuserdata/
+*.xcuserstate
