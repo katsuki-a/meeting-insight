@@ -596,45 +596,44 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 
 ## 15. 実装計画
 
-1名のmacOS/AIエージェント実装経験者を想定した目安である。
+実装は期間ではなく、Harnessで観測できる適応度関数を満たすまで反復するLoop engineeringとして進める。Issue・Pull Request単位の依存関係、具体的な型、fitness manifest、architecture rule、受け入れ条件、実機Gateは [詳細実装計画](implementation-plan.md) を参照する。
 
-### Phase 0: 3日間のFeasibility Spike
+すべてのloopは、fixture・失敗test・architecture ruleを先に追加し、最小実装、`fitness fast`、`fitness full`、baseline比較の順に進める。build、test、architecture、privacy、citation integrityは交換不能なhard gateとし、速度や正答率の改善で相殺しない。
 
-**Day 1: Evidence path**
+### Loop 0: HarnessとEvidence path
 
+- fitness manifestとarchitecture dependency ruleを作る
 - 手入力の質問を `codex exec` へ渡す
 - JSON Schema準拠のカードを得る
 - file/line/commitをローカルで再検証する
+- DemoRepo fixtureで正答、誤答、citation改変を再現する
 
-**Day 2: Audio path**
+継続条件:
 
-- ScreenCaptureKitでZoomアプリ音声＋マイクを取得
-- SpeechAnalyzerで日本語をconsoleへ出す
-- 30分連続動作とメモリを確認する
-
-**Day 3: Vertical slice**
-
-- 直前30秒＋手動ショートカットで調査
-- 最小overlayにカードを表示
-- end-to-end latencyを計測
-
-**継続条件**
-
-- 典型質問10件で8件以上が正しいrepoへ到達
+- clean checkoutで `fitness fast` が成功する
+- 典型質問10件で8件以上が正しいrepoへ到達する
 - citation整合率100%
 - P50 15秒、P95 35秒以内
-- 30分の日本語Zoom音声でクラッシュしない
 
-### Phase 1: 手動キューMVP（1週）
+### Loop 1: Audio pathと手動キューMVP
 
 - メニューバー、権限、repo選択、agent検出
+- ScreenCaptureKitでZoomアプリ音声＋マイクを取得
+- SpeechAnalyzerで日本語を文字起こし
+- 30分連続動作とメモリを検証
 - rolling transcript
 - 手動トリガー
 - Codex adapter、timeout/cancel
 - card UIとfeedback
 - raw audio非保存のテスト
 
-### Phase 2: 自動キュー（1〜2週）
+継続条件:
+
+- `fitness full` と実機capture/asr/lifecycle fitnessが成功する
+- 30分の日本語Zoom音声でクラッシュしない
+- Stop後にcapture、ASR task、agent processが残らない
+
+### Loop 2: 自動キュー
 
 - Stage 1ルール
 - Foundation Models classifier
@@ -642,7 +641,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 - repo entity辞書とASR補正
 - golden transcript eval
 
-### Phase 3: 信頼とマルチソース（1週）
+### Loop 3: 信頼とマルチソース
 
 - Claude Code adapter
 - local Wiki / DeepWiki adapter
@@ -650,7 +649,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 - dirty worktreeとscope表示
 - prompt injection / secret redaction test
 
-### Phase 4: OSS公開と技術ブログ（1〜2週）
+### Loop 4: OSS公開と技術ブログ
 
 - synthetic meeting audioとsample repoで再現可能なデモを作る
 - README、セットアップ、architecture、privacy、troubleshootingを整える
@@ -659,6 +658,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 - 対応OS、Mac、Codex / Claude Code versionを明記する
 - 2〜3分のデモ動画またはGIFを作る
 - 設計判断と失敗を含む技術ブログを公開する
+- `fitness full` と `fitness hardware` の公開用baselineを含める
 
 Zoom RTMSは、ローカルMVP完成後の発展記事・追加実装として扱う。公開を遅らせてまでbackendやMarketplace審査を先に導入しない。
 
