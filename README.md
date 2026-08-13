@@ -8,7 +8,7 @@
 
 実装は期間見積もりではなく、test・architecture・privacy・citation integrityをHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
-現在はWP-06まで実装済みです。macOS 26以上を対象にしたメニューバーアプリと、同じコアを使う `doctor` / `scope` / `snapshot` / `validate` / `ask` CLIを含みます。CLIの質問は、Research Scopeのsnapshot、scope限定のlocal knowledge抜粋、AgentEngine、citation再検証を同じpipelineで通り、検証済みcardだけをfile・line・commit付きで出力します。Codex CLIはshell非経由のread-only・ephemeral processとして起動し、JSONLと最終cardをfail-closedにdecodeします。CIでは外部通信のないrecorded fake engineで3つのDemoRepo質問を再現し、実Codex integrationは明示的なopt-inにしています。
+現在はWP-07まで実装済みです。macOS 26以上を対象にしたメニューバーアプリは、Research Scopeの作成と切り替え、利用sourceとプライバシー境界の事前確認、Codex doctor、手入力調査、実行中のCancel、検証済みInsight Card表示を提供します。アプリと `doctor` / `scope` / `snapshot` / `validate` / `ask` CLIは同じコアpipelineを使います。質問はResearch Scopeのsnapshot、scope限定のlocal knowledge抜粋、AgentEngine、citation再検証を通り、検証済みcardだけをfile・line・commit付きで出力します。Codex CLIはshell非経由のread-only・ephemeral processとして起動し、JSONLと最終cardをfail-closedにdecodeします。CIでは外部通信のないrecorded fake engineで3つのDemoRepo質問を再現し、実Codex integrationは明示的なopt-inにしています。
 
 ## Build
 
@@ -22,6 +22,8 @@ Scripts/check.sh test
 Scripts/check.sh fixture
 Scripts/check.sh cli
 Scripts/check.sh vertical-slice
+Scripts/check.sh app-service
+Scripts/check.sh app-shell
 ```
 
 引数なしの `Scripts/check.sh` は、build、schema contractを含む全test、Demo fixture contract、dependency architecture、privacy lintを実行し、結果を `.artifacts/checks/latest.json` に保存します。fixtureを使うreportにはDemoRepoのcommit SHAとDemoWikiのcontent revisionも記録します。引数付きのcommandは個別確認用です。

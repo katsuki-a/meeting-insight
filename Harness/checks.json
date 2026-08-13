@@ -41,11 +41,23 @@
       "command": ["Scripts/check.sh", "vertical-slice"]
     },
     {
+      "id": "APP-SHELL-001",
+      "command": ["Scripts/check.sh", "app-shell"]
+    },
+    {
+      "id": "APP-SERVICE-001",
+      "command": ["Scripts/check.sh", "app-service"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },
     {
       "id": "ARCH-AGENT-001",
+      "command": ["Scripts/check.sh", "architecture"]
+    },
+    {
+      "id": "ARCH-BOUNDARY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },
     {

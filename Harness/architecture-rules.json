@@ -34,5 +34,12 @@
       "symbols": ["CodexProcessRunner", "CodexCommandBuilder", "CodexEventDecoder"],
       "allowed_modules": ["MeetingInsightResearch"]
     }
+  ],
+  "external_forbidden_patterns": [
+    {
+      "id": "ui-does-not-own-process-or-jsonl",
+      "roots": ["App"],
+      "patterns": ["Process(", "GitProcess", "CodexProcessRunner", "CodexEventDecoder", "JSONSerialization"]
+    }
   ]
 }

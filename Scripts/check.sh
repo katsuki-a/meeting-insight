@@ -53,6 +53,18 @@ test_app() {
     test
 }
 
+test_app_shell() {
+  /usr/bin/xcodebuild \
+    -project "$repo_root/MeetingInsight.xcodeproj" \
+    -scheme MeetingInsight \
+    -destination 'platform=macOS,arch=arm64' \
+    -derivedDataPath "$artifacts_root/DerivedData" \
+    -packageCachePath "$artifacts_root/cache/xcode-packages" \
+    CODE_SIGNING_ALLOWED=NO \
+    test \
+    -only-testing:MeetingInsightAppTests
+}
+
 case "${1:-}" in
   "")
     exec /usr/bin/python3 "$repo_root/Scripts/check_runner.py"
@@ -89,6 +101,12 @@ case "${1:-}" in
   vertical-slice)
     test_package_filter 'EvidenceVerticalSliceTests|MeetingInsightCLIApplication'
     ;;
+  app-shell)
+    test_app_shell
+    ;;
+  app-service)
+    test_package_filter 'AppSettingsStoreTests|MeetingInsightAppService'
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -100,7 +118,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|vertical-slice|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|vertical-slice|app-shell|app-service|architecture|privacy|cli]"
     exit 64
     ;;
 esac

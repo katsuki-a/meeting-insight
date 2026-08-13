@@ -90,6 +90,17 @@ def validate_package(package: dict, package_root: pathlib.Path, rules: dict) -> 
                             f"{path}: {rule['id']} uses owned symbol {symbol!r}"
                         )
 
+    repository_root = package_root.parent.parent
+    for rule in rules.get("external_forbidden_patterns", []):
+        for root in rule["roots"]:
+            source_root = repository_root / root
+            for source in source_root.glob("**/*.swift"):
+                text = source.read_text(encoding="utf-8")
+                for pattern in rule["patterns"]:
+                    if pattern in text:
+                        path = source.relative_to(repository_root)
+                        errors.append(f"{path}: {rule['id']} matched {pattern!r}")
+
     return errors
 
 

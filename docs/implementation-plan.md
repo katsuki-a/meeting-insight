@@ -872,6 +872,8 @@ actor InvestigationQueue {
 
 ### WP-07: Mac app shellとonboarding（WP-00/03/05後）
 
+ステータス: 完了（2026-08-14）
+
 成果物:
 
 - MenuBarExtra、AppModel、session state表示。

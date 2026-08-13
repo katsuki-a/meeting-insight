@@ -4,15 +4,17 @@ import SwiftUI
 
 @main
 struct MeetingInsightApp: App {
-    private let initialStatus = OrchestrationModule.initialStatus
+    @State private var model = AppModel(service: MeetingInsightAppService())
 
     var body: some Scene {
         MenuBarExtra("Meeting Insight", systemImage: "lightbulb") {
-            Text(initialStatus.rawValue.capitalized)
-            Divider()
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
-            }
+            MenuBarContent(model: model)
         }
+        .menuBarExtraStyle(.window)
+
+        Window("Meeting Insight", id: "main") {
+            MainView(model: model)
+        }
+        .defaultSize(width: 720, height: 760)
     }
 }
