@@ -4,13 +4,17 @@ public enum InsightCardSchema {
     public static let version = 1
 
     public static func data() throws -> Data {
+        return try Data(contentsOf: url())
+    }
+
+    public static func url() throws -> URL {
         guard let url = Bundle.module.url(
             forResource: "insight-card.schema",
             withExtension: "json"
         ) else {
             throw InsightCardSchemaError.resourceMissing
         }
-        return try Data(contentsOf: url)
+        return url
     }
 }
 

@@ -86,6 +86,9 @@ case "${1:-}" in
   agent-source-policy)
     test_package_filter 'CodexEventDecoderTests|CodexSourcePolicyTests'
     ;;
+  vertical-slice)
+    test_package_filter 'EvidenceVerticalSliceTests|MeetingInsightCLIApplication'
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -97,7 +100,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|vertical-slice|architecture|privacy|cli]"
     exit 64
     ;;
 esac

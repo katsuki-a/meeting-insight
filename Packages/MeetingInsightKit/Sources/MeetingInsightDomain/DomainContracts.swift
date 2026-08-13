@@ -144,6 +144,25 @@ public struct KnowledgeSnapshot: Codable, Equatable, Sendable {
     }
 }
 
+public struct ResearchSnapshot: Codable, Equatable, Sendable {
+    public let scopeID: UUID
+    public let repositories: [RepoSnapshot]
+    public let knowledge: [KnowledgeSnapshot]
+    public let capturedAt: Date
+
+    public init(
+        scopeID: UUID,
+        repositories: [RepoSnapshot],
+        knowledge: [KnowledgeSnapshot],
+        capturedAt: Date
+    ) {
+        self.scopeID = scopeID
+        self.repositories = repositories
+        self.knowledge = knowledge
+        self.capturedAt = capturedAt
+    }
+}
+
 public struct InvestigationRequest: Identifiable, Codable, Equatable, Sendable {
     public let id: UUID
     public let scopeID: UUID

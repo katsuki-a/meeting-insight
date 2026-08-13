@@ -1,13 +1,13 @@
 import Foundation
 import MeetingInsightRepository
 
-public enum CodexAuthenticationStatus: Equatable, Sendable {
+public enum CodexAuthenticationStatus: String, Codable, Equatable, Sendable {
     case authenticated
     case unauthenticated
     case unavailable
 }
 
-public struct CodexDoctorReport: Equatable, Sendable {
+public struct CodexDoctorReport: Codable, Equatable, Sendable {
     public let executablePath: String
     public let version: String?
     public let authentication: CodexAuthenticationStatus

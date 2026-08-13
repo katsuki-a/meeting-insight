@@ -314,9 +314,15 @@ protocol TriggerDetecting: Sendable {
     func detect(in context: TranscriptContext) async throws -> TriggerDecision
 }
 
+struct AgentInvestigation: Sendable {
+    let request: InvestigationRequest
+    let conversationContext: String
+    let knowledgeExcerpts: [KnowledgeExcerpt]
+}
+
 protocol AgentEngine: Sendable {
     var id: String { get }
-    func investigate(_ request: InvestigationRequest) async throws -> InsightCard
+    func investigate(_ investigation: AgentInvestigation) async throws -> AgentInsightCard
     func cancel(requestID: UUID) async
 }
 

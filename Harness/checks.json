@@ -37,6 +37,10 @@
       "command": ["Scripts/check.sh", "agent-source-policy"]
     },
     {
+      "id": "EVIDENCE-VERTICAL-001",
+      "command": ["Scripts/check.sh", "vertical-slice"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },

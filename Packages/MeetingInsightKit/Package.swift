@@ -71,6 +71,24 @@ let package = Package(
                 "MeetingInsightRepository",
                 "MeetingInsightResearch"
             ]
+        ),
+        .testTarget(
+            name: "OrchestrationTests",
+            dependencies: [
+                "MeetingInsightDomain",
+                "MeetingInsightRepository",
+                "MeetingInsightResearch",
+                "MeetingInsightOrchestration"
+            ]
+        ),
+        .testTarget(
+            name: "IntegrationTests",
+            dependencies: [
+                "MeetingInsightDomain",
+                "MeetingInsightRepository",
+                "MeetingInsightResearch",
+                "MeetingInsightOrchestration"
+            ]
         )
     ],
     swiftLanguageModes: [.v6]

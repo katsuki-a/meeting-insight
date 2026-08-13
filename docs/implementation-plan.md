@@ -853,6 +853,8 @@ actor InvestigationQueue {
 
 ### WP-06: Evidence vertical slice CLI（WP-04/05後）
 
+ステータス: 完了（2026-08-14）
+
 成果物:
 
 - `doctor`、`scope`、`snapshot`、`validate`、`ask` commands。

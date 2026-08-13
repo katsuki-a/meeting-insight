@@ -1,6 +1,6 @@
 import Foundation
 
-public enum ValidationIssueCode: String, Equatable, Sendable {
+public enum ValidationIssueCode: String, Codable, Equatable, Sendable {
     case requestIDMismatch = "request_id_mismatch"
     case scopeMismatch = "scope_mismatch"
     case sourceNotAllowed = "source_not_allowed"
@@ -18,7 +18,7 @@ public enum ValidationIssueCode: String, Equatable, Sendable {
     case knowledgeChanged = "knowledge_changed"
 }
 
-public struct ValidationIssue: Equatable, Sendable {
+public struct ValidationIssue: Codable, Equatable, Sendable {
     public let code: ValidationIssueCode
     public let claimIndex: Int?
     public let evidenceIndex: Int?
@@ -34,7 +34,7 @@ public struct ValidationIssue: Equatable, Sendable {
     }
 }
 
-public struct ValidatedEvidence: Equatable, Sendable {
+public struct ValidatedEvidence: Codable, Equatable, Sendable {
     public let claimIndex: Int
     public let reference: EvidenceReference
 
@@ -44,7 +44,7 @@ public struct ValidatedEvidence: Equatable, Sendable {
     }
 }
 
-public struct ValidatedInsight: Identifiable, Equatable, Sendable {
+public struct ValidatedInsight: Identifiable, Codable, Equatable, Sendable {
     public var id: UUID { card.requestID }
 
     public let card: AgentInsightCard
