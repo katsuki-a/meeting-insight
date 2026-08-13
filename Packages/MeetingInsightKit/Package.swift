@@ -63,6 +63,14 @@ let package = Package(
         .testTarget(
             name: "RepositoryTests",
             dependencies: ["MeetingInsightDomain", "MeetingInsightRepository"]
+        ),
+        .testTarget(
+            name: "ResearchTests",
+            dependencies: [
+                "MeetingInsightDomain",
+                "MeetingInsightRepository",
+                "MeetingInsightResearch"
+            ]
         )
     ],
     swiftLanguageModes: [.v6]

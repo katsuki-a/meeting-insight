@@ -25,6 +25,10 @@
       "command": ["Scripts/check.sh", "knowledge-snapshot"]
     },
     {
+      "id": "EVIDENCE-INTEGRITY-001",
+      "command": ["Scripts/check.sh", "evidence-integrity"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },

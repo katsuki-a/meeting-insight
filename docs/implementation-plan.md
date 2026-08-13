@@ -819,6 +819,8 @@ actor InvestigationQueue {
 
 ### WP-04: Evidence validator（WP-01/02/03後）
 
+ステータス: 完了（2026-08-14）
+
 成果物:
 
 - repository / knowledge root containment、revision、line range、quote、SHA-256検証。

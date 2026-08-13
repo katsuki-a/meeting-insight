@@ -75,6 +75,9 @@ case "${1:-}" in
   knowledge-snapshot)
     test_package_filter KnowledgeSnapshotTests
     ;;
+  evidence-integrity)
+    test_package_filter 'EvidenceValidatorTests|ConfidenceCalculatorTests'
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -86,7 +89,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|architecture|privacy|cli]"
     exit 64
     ;;
 esac

@@ -8,7 +8,7 @@
 
 実装は期間見積もりではなく、test・architecture・privacy・citation integrityをHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
-現在はWP-03まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、決定的に生成できるsynthetic DemoRepo / DemoWiki、安全なGit snapshotとscope限定local knowledge provider、依存境界を検証するHarnessを含みます。
+現在はWP-04まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、決定的に生成できるsynthetic DemoRepo / DemoWiki、安全なGit snapshotとscope限定local knowledge provider、citationをpath・revision・line・quote・hashまで再検証するEvidence Validator、依存境界を検証するHarnessを含みます。
 
 ## Build
 
