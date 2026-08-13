@@ -554,6 +554,8 @@ OSSはCodexやClaude Codeを同梱・再配布しない。利用者が自分で�
 
 LLMが返したcitationをそのまま表示しない。アプリ側で必ず再検証する。
 
+Agentが返すInsight Cardの外部contractは [JSON Schema](../Schemas/insight-card.schema.json) を正とし、Swift Domain型とruntime resourceの一致をcontract testで固定する。
+
 ### 11.1 検証項目
 
 - sourceがactive Research Scopeに登録されているか

@@ -758,7 +758,6 @@ actor InvestigationQueue {
 - `swift test` と `xcodebuild test` の入口。
 - `Scripts/check.sh`。
 - `Harness/fitness.json` と `Scripts/fitness.sh`。
-- 適応度駆動でcoding agentを反復実行する `Scripts/loop.sh`。
 - dependency ruleを検証する `Scripts/architecture-check.sh`。
 - CIの最小workflow。
 
@@ -771,6 +770,8 @@ actor InvestigationQueue {
 - warningを0件にする。
 
 ### WP-01: Domain contractとschema（WP-00後）
+
+ステータス: 完了（2026-08-13）
 
 成果物:
 
@@ -1047,19 +1048,17 @@ actor InvestigationQueue {
 
 ```text
 Scripts/fitness.sh fast
-Scripts/fitness.sh full
-Scripts/fitness.sh hardware
 ```
 
-profile:
+現時点で実装済みのprofileは `fast` だけとする。profile名だけを先に公開せず、対応するcheckが揃った時点で次をmanifestへ追加する。
 
 | profile | 用途 | 含むもの |
 | --- | --- | --- |
-| `fast` | 変更ごとの内側loop | format、compile、unit、contract、architecture、schema |
+| `fast` | 変更ごとの内側loop | compile、unit/contract、architecture、privacy lint |
 | `full` | Work package完了判定 | `fast`＋DemoRepo integration、fixture replay、failure、performance regression |
 | `hardware` | 実機Gate | `full`＋ScreenCaptureKit、microphone、SpeechAnalyzer、soak、E2E |
 
-`hardware` はTCC権限とユーザー操作が必要なため無人CIでは実行しない。ただし実行手順と結果schemaはHarnessに含め、結果を同じfitness reportへ統合する。
+未実装profileは成功扱いにせず、Harnessがusage errorで拒否する。`hardware` はTCC権限とユーザー操作が必要なため無人CIでは実行しない。
 
 Harnessの出力先:
 
@@ -1069,7 +1068,7 @@ Harnessの出力先:
 .artifacts/fitness/<run-id>.log
 ```
 
-`.artifacts/` はGit管理しない。公開用baselineだけを、個人情報と絶対pathを除去して `Harness/Baselines/` にcommitする。
+`.artifacts/` はGit管理しない。reportはCI artifactまたはローカル診断に使う。比較対象となるquality metricと自動比較処理が実装されるまでは、実行reportのコピーをbaselineとしてcommitしない。
 
 fitness reportの必須contract:
 
@@ -1095,7 +1094,7 @@ fitness reportの必須contract:
       "id": "TEST-001",
       "status": "failed",
       "duration_ms": 1200,
-      "summary": "1 test failed",
+      "summary": "exit code 1",
       "evidence_path": ".artifacts/fitness/run-id/TEST-001.log"
     }
   ],
@@ -1104,45 +1103,13 @@ fitness reportの必須contract:
 }
 ```
 
-Harnessは有効checkを可能な範囲ですべて実行してからreportを一時fileへ書き、最後にatomic renameする。hard gate失敗、quality threshold未達、report生成失敗のいずれかで非0終了する。checkのstdout/stderrは個別fileへ分離し、report本体には秘密値、transcript、コード本文、絶対pathを入れない。
+Harnessは有効checkを可能な範囲ですべて実行してからreportを一時fileへ書き、最後にatomic renameする。hard gate失敗またはreport生成失敗で非0終了する。checkごとのstdout/stderrは1つのevidence logへ保存し、report本体には秘密値、transcript、コード本文、絶対pathを入れない。quality thresholdは、実測値を返すcheckが追加された時点で同じ終了コード契約へ組み込む。
 
 ### 9.2 Fitness manifest
 
-`Harness/fitness.json` を判定規則の正本にする。thresholdを実装コード、CI、READMEへ重複記載しない。
+[`Harness/fitness.json`](../Harness/fitness.json) を判定規則の正本にする。profileはcheck IDの具体的な配列とし、未実装profileのaliasや将来のthresholdを先に置かない。runner commandやthresholdをCI、READMEへ重複記載しない。
 
-```json
-{
-  "schema_version": 1,
-  "profiles": {
-    "fast": ["build", "unit", "contract", "architecture", "privacy-static"],
-    "full": ["fast", "integration", "failure", "quality", "performance"],
-    "hardware": ["full", "capture", "asr", "lifecycle", "e2e"]
-  },
-  "checks": [
-    {
-      "id": "ARCH-DEPENDENCY-001",
-      "kind": "hard_gate",
-      "runner": "Scripts/architecture-check.sh",
-      "expect": { "exit_code": 0 }
-    },
-    {
-      "id": "EVIDENCE-INTEGRITY-001",
-      "kind": "hard_gate",
-      "runner": "swift-test",
-      "filter": "EvidenceValidatorTests",
-      "expect": { "citation_validation_rate": 1.0 }
-    },
-    {
-      "id": "AGENT-QUALITY-001",
-      "kind": "quality",
-      "runner": "fixture-replay",
-      "expect": { "verdict_accuracy_min": 0.8 }
-    }
-  ]
-}
-```
-
-manifest変更も通常のコード変更と同様にreview対象とする。実装を通すためにthresholdを下げる変更は禁止し、変更が必要な場合は根拠、失敗例、新旧baselineをADRへ残す。
+manifest変更も通常のコード変更と同様にreview対象とする。実装を通すためにcheckやthresholdを外す変更は禁止し、変更が必要な場合は根拠と失敗例をADRへ残す。
 
 ### 9.3 Hard gate
 
@@ -1151,8 +1118,9 @@ manifest変更も通常のコード変更と同様にreview対象とする。実
 | ID | invariant | 検証方法 |
 | --- | --- | --- |
 | `BUILD-001` | clean checkoutからbuild可能 | `swift build`、`xcodebuild build` |
-| `TEST-001` | unit/contract/integration testが全件成功 | XCTest / Swift Testing |
+| `TEST-001` | schema contractを含むunit/contract/integration testが全件成功 | XCTest / Swift Testing |
 | `ARCH-DEPENDENCY-001` | module依存が許可DAG内 | `swift package describe --type json` をruleと照合 |
+| `PRIVACY-LINT-001` | 明白なsensitive loggingとraw audio file APIを導入しない | 限定的なsource scan |
 | `ARCH-IMPORT-001` | DomainがFoundation以外へ依存しない | source import scan |
 | `ARCH-BOUNDARY-001` | UIがProcess、Git、JSONLを直接扱わない | forbidden symbol/import scan |
 | `ARCH-AGENT-001` | `Process`によるagent起動がResearch内に閉じる | source ownership scan |
@@ -1160,7 +1128,6 @@ manifest変更も通常のコード変更と同様にreview対象とする。実
 | `SCOPE-CONTAINMENT-001` | 検索・citationがactive scopeのcanonical root内に収まる | traversal / symlink mutation test |
 | `SCOPE-SOURCE-001` | 1調査のprimary repoとknowledge sourceがsnapshotで固定される | scope resolution contract test |
 | `KNOWLEDGE-SNAPSHOT-001` | 同じfile集合から同じknowledge revisionを生成する | deterministic digest test |
-| `SCHEMA-001` | JSON SchemaとSwift contractが一致 | round-trip contract test |
 | `EVIDENCE-INTEGRITY-001` | 表示対象citationの検証率100% | mutation fixture test |
 | `SECURITY-READONLY-001` | agent commandがread-onlyかつshell非経由 | argument snapshot test |
 | `SECURITY-SOURCE-001` | Web/MCP eventを結果として採用しない | recorded JSONL policy test |
@@ -1168,6 +1135,8 @@ manifest変更も通常のコード変更と同様にreview対象とする。実
 | `LIFECYCLE-001` | Stop後のcapture/task/processが0 | fake resource ledger test |
 
 architecture ruleは単純な文字列lintだけに依存しない。Swift Packageのtarget dependency、source import、実行時contract testを組み合わせる。静的scanのfalse positiveはallowlistへ理由付きで登録し、行単位の無期限ignoreを作らない。
+
+`PRIVACY-LINT-001` は早期警告であり、永続化が存在しないことの証明ではない。runtimeのstorage spyとlifecycle testが実装された時点で `PRIVACY-RETENTION-001` を有効化する。
 
 ### 9.4 Quality fitness
 
@@ -1192,7 +1161,7 @@ FitnessVector = {
 1. hard gateがすべてpassしていること。
 2. citation integrityとprivacy invariantを維持していること。
 3. 対象Work packageの主要quality thresholdを満たすこと。
-4. 既存baselineから他の指標を退行させていないこと。
+4. 比較可能なbaselineがある場合、他の指標を退行させていないこと。
 5. 同等なら、実装が小さく依存が少ない候補を採用すること。
 
 単一の総合点だけで採否を決めない。たとえばlatency改善でaccuracyやcitation integrityが落ちる候補は不採用とする。
@@ -1229,17 +1198,12 @@ FitnessVector = {
       "id": "no-shell-agent-launch",
       "modules": ["MeetingInsightResearch"],
       "patterns": ["/bin/sh", "/bin/zsh", "bash -lc", "zsh -lc"]
-    },
-    {
-      "id": "no-raw-audio-write",
-      "modules": ["MeetingInsightCapture", "MeetingInsightTranscription"],
-      "patterns": ["AVAudioFile", "write(to:"]
     }
   ]
 }
 ```
 
-`forbidden_patterns` は対象moduleをruleごとに限定する。たとえば `AVAudioFile` と `write(to:)` はCapture/Transcriptionだけで禁止し、明示保存されたInsight Cardを扱うStorageまで禁止しない。
+`forbidden_patterns` はarchitecture上の所有境界を表すものだけに限定する。raw audio file APIは同じ文字列scanを重複させず、`PRIVACY-LINT-001` でCapture/Transcriptionだけを対象にする。
 
 ### 9.6 Loop protocol
 
@@ -1253,10 +1217,7 @@ stateDiagram-v2
     Implement --> Fast: 最小変更
     Fast --> Diagnose: fitness fast失敗
     Diagnose --> Implement: 原因仮説を1つ変更
-    Fast --> Full: fitness fast成功
-    Full --> Diagnose: fullで退行
-    Full --> Record: 全hard gate成功
-    Record --> Review: baselineとdecisionを保存
+    Fast --> Review: 全hard gate成功
     Review --> [*]: Work package完了
 ```
 
@@ -1268,9 +1229,8 @@ stateDiagram-v2
 4. 失敗を通す最小の実装だけを加える。
 5. targeted testを実行する。
 6. `fitness fast` を実行する。
-7. 成功後に `fitness full` を実行する。
-8. reportを直前baselineと比較する。
-9. hard gateとquality thresholdを満たした場合だけ完了にする。
+7. manifestに対象Work package用の追加profileが実装済みなら実行する。
+8. hard gateと、有効化済みのquality thresholdを満たした場合だけ完了にする。
 
 同じ失敗が続く場合、変更量を増やし続けない。原因分類をcompile、contract、architecture、behavior、performance、environmentに分け、仮説と観測結果をloop noteへ1行ずつ残す。環境依存または要件衝突と判明した場合は、ADRを作ってGateの選択肢へ戻る。
 
@@ -1278,8 +1238,8 @@ stateDiagram-v2
 
 | Work package | 新たに有効化する主なfitness |
 | --- | --- |
-| WP-00 | `BUILD-001`、`TEST-001`、architecture harness自体のself-test |
-| WP-01〜03 | `SCHEMA-001`、`ARCH-DEPENDENCY-001`、`SCOPE-CONTAINMENT-001`、`SCOPE-SOURCE-001`、`KNOWLEDGE-SNAPSHOT-001` |
+| WP-00 | `BUILD-001`、`TEST-001`、`ARCH-DEPENDENCY-001`、`PRIVACY-LINT-001` |
+| WP-01〜03 | `TEST-001`内のschema contract、`ARCH-DEPENDENCY-001`、`SCOPE-CONTAINMENT-001`、`SCOPE-SOURCE-001`、`KNOWLEDGE-SNAPSHOT-001` |
 | WP-04 | `EVIDENCE-INTEGRITY-001` とmutation fixtures |
 | WP-05〜06 | `SECURITY-READONLY-001`、`SECURITY-SOURCE-001`、agent quality |
 | WP-07 | main-thread responsiveness、UI boundary |
@@ -1296,10 +1256,10 @@ Work packageの完了条件:
 
 - 対象profileのhard gateがすべてpass。
 - 対象quality thresholdを満たす。
-- 既存baselineに説明のない退行がない。
+- 比較可能なbaselineがある場合、説明のない退行がない。
 - 新しいbehaviorがfixtureまたはtestで再現可能。
 - architecture ruleとprivacy tableが実装に一致。
-- reportにOS、Xcode、CLI、fixture SHAが記録される。
+- reportにOS、Xcode、CLIを記録し、fixtureを使うcheckではfixture SHAも記録される。
 
 プロダクトreleaseの完了条件:
 
@@ -1310,56 +1270,9 @@ Work packageの完了条件:
 
 公開を急ぐ場合でも、Evidence Validator、cleanup、architecture hard gateは無効化しない。`v0.1.0`では自動trigger関連fitnessを未有効として扱い、手動キューのrelease profileを完遂する。
 
-### 9.9 Coding agent loop runner
+### 9.9 Coding agent loop
 
-`Scripts/loop.sh <work-package-id>` をdevelopment-timeのexecutorとする。プロダクトが会議中に呼ぶCodex runnerとは分離し、こちらだけがworkspace-writeで実装変更を行う。
-
-```text
-Scripts/loop.sh WP-04
-```
-
-loop runnerの入力:
-
-- Work packageの成果物と受け入れ条件。
-- `Harness/fitness.json` の有効check。
-- `Harness/architecture-rules.json`。
-- 直前のfitness report。
-- 現在のdiff summary。
-- 最優先で失敗しているcheck 1件。
-
-各iterationでcoding agentへ与える契約:
-
-```text
-Goal: Make the selected failing fitness check pass.
-Constraints:
-- Change the smallest coherent set of files.
-- Do not weaken, delete, skip, or rewrite fitness thresholds.
-- Do not edit unrelated work packages.
-- Preserve every previously passing hard gate.
-- Run the targeted check, then fitness fast.
-- Report the hypothesis, changed files, and observed result.
-```
-
-runnerの制御:
-
-1. 開始時にbaseline reportとGit状態を記録する。
-2. Harness自体の変更が目的でない限り、`fitness.json` とarchitecture rulesをread-only対象としてagentへ指示する。
-3. failing checkをpriority順に1件だけ選ぶ。
-4. `codex exec --sandbox workspace-write --ephemeral` で1 iterationを実行する。
-5. agentの自己申告ではなく、runner自身がtargeted checkと `fitness fast` を再実行する。
-6. 改善した場合だけ次のfailureへ進む。
-7. hard gateが退行した場合は新機能側の変更を修正対象にし、gateを緩めない。
-8. 全対象checkがpassしたら `fitness full` を実行して停止する。
-9. commit、push、threshold変更は自動実行しない。
-
-無限loopを避ける停止条件:
-
-- 同じcheckが同じerror fingerprintで連続し、fitness vectorが改善しない。
-- Harnessまたは環境自体が壊れている。
-- architecture ruleとbehavior要件が両立しない。
-- user decisionを必要とする別案へ分岐する。
-
-停止時は `.artifacts/loop/<run-id>/summary.json` に、失敗check、試した仮説、diff、最後のfitness report、次の選択肢を残す。未達を成功扱いせず、人間または次のagentが同じ観測点から再開できる状態にする。
+coding agentは専用executorを介さず、9.6のprotocolを直接実行する。失敗したcheckを1件選び、最小変更、targeted test、`fitness fast`を反復する。汎用loop runnerは、手動運用で繰り返し必要な制御が観測されるまで実装しない。commit、push、threshold変更はユーザーの明示指示なしに行わない。
 
 ## 10. Gateと中止条件
 
@@ -1537,7 +1450,7 @@ release判定値:
 Scripts/fitness.sh fast
 ```
 
-main branchとrelease candidateでは `Scripts/fitness.sh full` も実行する。CIは実Codex、マイク、Screen Recordingを要求しない。AgentEngine、AudioSource、TranscriptSourceのfakeを使う。
+現在のCIは実装済みの `fast` だけを実行する。DemoRepo integration、fixture replay、failure、performance regressionが揃った時点で `full` を追加する。CIは実Codex、マイク、Screen Recordingを要求せず、AgentEngine、AudioSource、TranscriptSourceのfakeを使う。
 
 ### 14.2 Opt-in test
 
@@ -1571,8 +1484,7 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 - MenuBarExtraに `Idle` 表示。
 - local Swift Packageの8 target。
 - CLIの `--help`。
-- Harness manifest、architecture rules、意図的に失敗するself-test。
-- Work packageを1件ずつ処理するloop runner。
+- Harness manifestとarchitecture rules。
 - `fitness fast` がpassする最小unit testとCI。
 
 このPRではScreenCaptureKit、Speech、Codexをまだ呼ばない。
@@ -1605,9 +1517,8 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 - [x] Xcodeのdeployment targetをmacOS 26.0にする。
 - [x] Swift 6 language modeとStrict Concurrencyを有効にする。
 - [x] package/module命名を本書どおりに作る。
-- [ ] schemaへ `schema_version` を追加する。
+- [x] schemaへ `schema_version` を追加する。
 - [x] `fitness.json` と `architecture-rules.json` を実装より先に追加する。
-- [x] `fitness fast` のbaseline reportを作る。
 - [ ] Research Scopeのsource policyと既定exclude patternを固定する。
 - [ ] DemoRepo / DemoWikiの質問と期待結果を先にcommitする。
 - [ ] 実Codex testはsynthetic repo以外を拒否するguardを入れる。

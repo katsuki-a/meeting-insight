@@ -8,7 +8,7 @@
 
 実装は期間見積もりではなく、test・architecture・privacy・citation integrityを適応度関数としてHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
-現在はWP-00のbootstrapまで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、依存境界を検証するHarnessを含みます。
+現在はWP-01まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、依存境界を検証するHarnessを含みます。
 
 ## Build
 
@@ -22,4 +22,4 @@ Scripts/check.sh cli
 Scripts/fitness.sh fast
 ```
 
-`fitness fast` はbuild、test、architecture、privacy static checkを実行し、機械可読reportを `.artifacts/fitness/latest.json` に生成します。
+`fitness fast` はbuild、schema contractを含む全test、dependency architecture、privacy lintを実行し、機械可読reportを `.artifacts/fitness/latest.json` に生成します。`full` と `hardware` は対応するintegration・実機checkを実装してから有効化します。

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meeting-insight.local/schemas/insight-card.schema.json",
+  "title": "Meeting Insight Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "verdict",
+    "headline",
+    "answer",
+    "scope",
+    "claims",
+    "open_questions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["verified", "contradicted", "partial", "not_found", "needs_human"]
+    },
+    "headline": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "answer": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment", "repositories", "knowledge_roots", "production_revision_verified"],
+      "properties": {
+        "environment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "production_revision_verified": {
+          "type": "boolean"
+        },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "commit_sha", "dirty_worktree"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "commit_sha": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{7,64}$"
+              },
+              "dirty_worktree": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "knowledge_roots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "revision", "revision_kind"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision_kind": {
+                "type": "string",
+                "enum": ["git_commit", "content_digest", "retrieved_at"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "kind", "confidence", "evidence"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["observation", "inference"]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_type",
+                "source_name",
+                "source_revision",
+                "path",
+                "line_start",
+                "line_end",
+                "quote",
+                "quote_sha256"
+              ],
+              "properties": {
+                "source_type": {
+                  "type": "string",
+                  "enum": ["code", "test", "config", "git", "local_wiki", "deepwiki"]
+                },
+                "source_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_revision": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "line_start": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "line_end": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "quote_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-fA-F]{64}$"
+                },
+                "url": {
+                  "type": ["string", "null"],
+                  "format": "uri"
+                },
+                "retrieved_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
+    }
+  }
+}

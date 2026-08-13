@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "request_id": "00000000-0000-4000-8000-000000000001",
+  "verdict": "verified",
+  "headline": "Feature A requires a paid plan",
+  "answer": "Feature A is disabled unless the current account has a paid plan.",
+  "scope": {
+    "environment": "local-main",
+    "repositories": [
+      {
+        "name": "DemoRepo",
+        "commit_sha": "0123456789abcdef0123456789abcdef01234567",
+        "dirty_worktree": false
+      }
+    ],
+    "knowledge_roots": [
+      {
+        "name": "DemoWiki",
+        "revision": "f5f863ec34d1932dd2559cf8332808c4e0c27e50ad49fe3bc7b640eba21e7a4a",
+        "revision_kind": "content_digest"
+      }
+    ],
+    "production_revision_verified": false
+  },
+  "claims": [
+    {
+      "text": "The implementation returns false for accounts without a paid plan.",
+      "kind": "observation",
+      "confidence": 0.94,
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_name": "DemoRepo",
+          "source_revision": "0123456789abcdef0123456789abcdef01234567",
+          "path": "Sources/FeatureGate.swift",
+          "line_start": 12,
+          "line_end": 18,
+          "quote": "guard isPaidPlan else { return false }",
+          "quote_sha256": "56ff3539918e1da9452645fa958447a4e6090c37663e37ced226429ec7975907",
+          "url": "https://example.invalid/DemoRepo/blob/0123456/Sources/FeatureGate.swift",
+          "retrieved_at": "2026-08-12T00:00:00Z"
+        }
+      ]
+    }
+  ],
+  "open_questions": [
+    "The production revision is not confirmed."
+  ]
+}

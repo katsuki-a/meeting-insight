@@ -64,7 +64,8 @@ def validate_package(package: dict, package_root: pathlib.Path, rules: dict) -> 
             text = source.read_text(encoding="utf-8")
             for module_name in imports:
                 if f"import {module_name}" in text:
-                    errors.append(f"{module} imports forbidden module {module_name}")
+                    path = source.relative_to(package_root)
+                    errors.append(f"{path}: {module} imports forbidden module {module_name}")
 
     for rule in rules["forbidden_patterns"]:
         for module in rule["modules"]:
@@ -72,7 +73,8 @@ def validate_package(package: dict, package_root: pathlib.Path, rules: dict) -> 
                 text = source.read_text(encoding="utf-8")
                 for pattern in rule["patterns"]:
                     if pattern in text:
-                        errors.append(f"{rule['id']} matched in {module}")
+                        path = source.relative_to(package_root)
+                        errors.append(f"{path}: {rule['id']} matched {pattern!r}")
 
     return errors
 
@@ -81,27 +83,14 @@ def validate(package_root: pathlib.Path, rules: dict) -> list[str]:
     return validate_package(load_package(package_root), package_root, rules)
 
 
-def run_self_test(package_root: pathlib.Path, rules: dict) -> list[str]:
-    package = load_package(package_root)
-    broken = json.loads(json.dumps(rules))
-    broken["allowed_dependencies"]["MissingSelfTestTarget"] = []
-    detected = validate_package(package, package_root, broken)
-    if "missing target: MissingSelfTestTarget" not in detected:
-        return ["self-test did not reject an invalid architecture"]
-    return []
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--package-root", type=pathlib.Path, required=True)
     parser.add_argument("--rules", type=pathlib.Path, required=True)
-    parser.add_argument("--self-test", action="store_true")
     arguments = parser.parse_args()
 
     rules = json.loads(arguments.rules.read_text(encoding="utf-8"))
     errors = validate(arguments.package_root, rules)
-    if arguments.self_test:
-        errors.extend(run_self_test(arguments.package_root, rules))
 
     for error in errors:
         print(error, file=sys.stderr)

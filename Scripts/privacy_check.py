@@ -31,7 +31,7 @@ def main() -> int:
         print(error, file=sys.stderr)
     if errors:
         return 1
-    print("privacy static checks passed")
+    print("privacy lint checks passed")
     return 0
 
 

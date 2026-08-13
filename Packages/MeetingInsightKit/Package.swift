@@ -18,7 +18,10 @@ let package = Package(
         .executable(name: "meeting-insight", targets: ["MeetingInsightCLI"])
     ],
     targets: [
-        .target(name: "MeetingInsightDomain"),
+        .target(
+            name: "MeetingInsightDomain",
+            resources: [.process("Resources")]
+        ),
         .target(
             name: "MeetingInsightRepository",
             dependencies: ["MeetingInsightDomain"]
@@ -54,7 +57,8 @@ let package = Package(
         ),
         .testTarget(
             name: "DomainTests",
-            dependencies: ["MeetingInsightDomain"]
+            dependencies: ["MeetingInsightDomain"],
+            resources: [.process("Fixtures")]
         )
     ],
     swiftLanguageModes: [.v6]

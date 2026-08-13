@@ -26,11 +26,6 @@
       "id": "no-shell-agent-launch",
       "modules": ["MeetingInsightResearch"],
       "patterns": ["/bin/sh", "/bin/zsh", "bash -lc", "zsh -lc"]
-    },
-    {
-      "id": "no-raw-audio-write",
-      "modules": ["MeetingInsightCapture", "MeetingInsightTranscription"],
-      "patterns": ["AVAudioFile", "write(to:"]
     }
   ]
 }

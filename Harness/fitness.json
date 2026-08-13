@@ -1,9 +1,7 @@
 {
   "schema_version": 1,
   "profiles": {
-    "fast": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"],
-    "full": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"],
-    "hardware": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-STATIC-001"]
+    "fast": ["BUILD-001", "TEST-001", "ARCH-DEPENDENCY-001", "PRIVACY-LINT-001"]
   },
   "checks": [
     {
@@ -21,11 +19,11 @@
     {
       "id": "ARCH-DEPENDENCY-001",
       "kind": "hard_gate",
-      "runner": "Scripts/architecture-check.sh --self-test",
+      "runner": "Scripts/check.sh architecture",
       "expect": { "exit_code": 0 }
     },
     {
-      "id": "PRIVACY-STATIC-001",
+      "id": "PRIVACY-LINT-001",
       "kind": "hard_gate",
       "runner": "Scripts/check.sh privacy",
       "expect": { "exit_code": 0 }

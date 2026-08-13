@@ -29,7 +29,7 @@
 
 - プロダクト判断と全体アーキテクチャは `docs/product-architecture.md` を正とする。
 - 実装順序、module境界、Work package、fitness function、停止条件は `docs/implementation-plan.md` を正とする。
-- Insight Cardの外部contractは `docs/schemas/insight-card.schema.json` を正とし、実装開始時にruntime用schemaとの一貫性をcontract testで固定する。
+- Insight Cardの外部contractは `Schemas/insight-card.schema.json` を正とし、runtime用schemaとの一貫性をcontract testで固定する。docsからは相対リンクで参照する。
 - 仕様とコードが矛盾した場合、黙って片方へ合わせず、同じ変更で文書またはADRも更新する。
 
 ## Loop engineering

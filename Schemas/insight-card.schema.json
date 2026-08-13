@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "request_id",
     "verdict",
     "headline",
@@ -14,6 +15,10 @@
     "open_questions"
   ],
   "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
     "request_id": {
       "type": "string",
       "format": "uuid"

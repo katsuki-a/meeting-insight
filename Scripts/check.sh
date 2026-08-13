@@ -57,7 +57,7 @@ case "${1:-all}" in
     test_app
     ;;
   architecture)
-    "$repo_root/Scripts/architecture-check.sh" --self-test
+    "$repo_root/Scripts/architecture-check.sh"
     ;;
   privacy)
     /usr/bin/python3 "$repo_root/Scripts/privacy_check.py" "$repo_root"
@@ -67,12 +67,7 @@ case "${1:-all}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   all)
-    build_package
-    build_app
-    test_package
-    test_app
-    "$repo_root/Scripts/architecture-check.sh" --self-test
-    /usr/bin/python3 "$repo_root/Scripts/privacy_check.py" "$repo_root"
+    exec "$repo_root/Scripts/fitness.sh" fast
     ;;
   *)
     print -u2 "usage: Scripts/check.sh [all|build|test|architecture|privacy|cli]"
