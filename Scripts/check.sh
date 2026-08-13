@@ -47,7 +47,10 @@ test_app() {
     test
 }
 
-case "${1:-all}" in
+case "${1:-}" in
+  "")
+    exec /usr/bin/python3 "$repo_root/Scripts/check_runner.py"
+    ;;
   build)
     build_package
     build_app
@@ -66,11 +69,8 @@ case "${1:-all}" in
     build_package
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
-  all)
-    exec "$repo_root/Scripts/fitness.sh" fast
-    ;;
   *)
-    print -u2 "usage: Scripts/check.sh [all|build|test|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|architecture|privacy|cli]"
     exit 64
     ;;
 esac

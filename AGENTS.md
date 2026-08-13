@@ -28,7 +28,7 @@
 ## Source of truth
 
 - プロダクト判断と全体アーキテクチャは `docs/product-architecture.md` を正とする。
-- 実装順序、module境界、Work package、fitness function、停止条件は `docs/implementation-plan.md` を正とする。
+- 実装順序、module境界、Work package、check、停止条件は `docs/implementation-plan.md` を正とする。
 - Insight Cardの外部contractは `Schemas/insight-card.schema.json` を正とし、runtime用schemaとの一貫性をcontract testで固定する。docsからは相対リンクで参照する。
 - 仕様とコードが矛盾した場合、黙って片方へ合わせず、同じ変更で文書またはADRも更新する。
 
@@ -36,7 +36,7 @@
 
 - 実装はHarness駆動のLoop engineeringで行う。
 - behaviorを実装する前に、失敗するfixture、test、architecture rule、またはmetricを追加する。
-- 最小の変更を行い、targeted check、`fitness fast`、必要に応じて `fitness full` の順で実行する。
+- 最小の変更を行い、targeted check、`Scripts/check.sh` の順で実行する。
 - coding agentの自己申告ではなく、Harnessの終了コードと機械可読reportを判定根拠にする。
 - build、test、architecture、privacy、citation integrityは交換不能なhard gateである。
 - 新機能を通すためにtestをskipしたり、thresholdを下げたり、architecture ruleを緩めたりしない。
@@ -63,7 +63,7 @@
 
 - 最初の完成経路は、手入力または直前30秒からCodexで1 repositoryを調査し、検証済みInsight Cardを表示すること。
 - 手動キューを自動triggerより先に完成させる。
-- Claude Code、DeepWiki、Zoom RTMS、deployment revision、話者分離は、既定の縦切りがfitness gateを通過した後に追加する。
+- Claude Code、DeepWiki、Zoom RTMS、deployment revision、話者分離は、既定の縦切りがhard gateを通過した後に追加する。
 - 議事録、アクションアイテム、自動コード変更、PR作成、会議チャットへの自動投稿へscopeを広げない。
 
 ## Privacy and repository safety

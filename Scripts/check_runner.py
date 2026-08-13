@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
-import argparse
 import datetime
 import json
 import os
 import pathlib
-import shlex
 import subprocess
-import sys
 import time
-import uuid
 
 
 def command_output(arguments: list[str], cwd: pathlib.Path) -> str:
@@ -41,39 +37,25 @@ def write_atomic(path: pathlib.Path, payload: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--repo-root", required=True, type=pathlib.Path)
-    parser.add_argument("--manifest", required=True, type=pathlib.Path)
-    parser.add_argument("--profile", required=True)
-    arguments = parser.parse_args()
-
-    repo_root = arguments.repo_root.resolve()
-    manifest = json.loads(arguments.manifest.read_text(encoding="utf-8"))
-    if arguments.profile not in manifest["profiles"]:
-        print(f"unknown fitness profile: {arguments.profile}", file=sys.stderr)
-        return 64
-
-    checks_by_id = {check["id"]: check for check in manifest["checks"]}
-    selected_ids = manifest["profiles"][arguments.profile]
-    run_id = str(uuid.uuid4())
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    manifest_path = repo_root / "Harness" / "checks.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     started_at = datetime.datetime.now(datetime.timezone.utc)
-    fitness_root = repo_root / ".artifacts" / "fitness"
-    evidence_root = fitness_root / run_id
-    evidence_root.mkdir(parents=True, exist_ok=True)
+    reports_root = repo_root / ".artifacts" / "checks"
+    reports_root.mkdir(parents=True, exist_ok=True)
 
     check_results: list[dict[str, object]] = []
     failed: list[str] = []
-    combined_log: list[str] = []
     process_environment = os.environ.copy()
     process_environment["DEVELOPER_DIR"] = process_environment.get(
         "DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer"
     )
 
-    for check_id in selected_ids:
-        check = checks_by_id[check_id]
+    for check in manifest["checks"]:
+        check_id = check["id"]
         started = time.monotonic()
         result = subprocess.run(
-            shlex.split(check["runner"]),
+            check["command"],
             cwd=repo_root,
             capture_output=True,
             check=False,
@@ -81,42 +63,36 @@ def main() -> int:
             text=True,
         )
         duration_ms = round((time.monotonic() - started) * 1000)
-        status = "passed" if result.returncode == check["expect"]["exit_code"] else "failed"
+        status = "passed" if result.returncode == 0 else "failed"
         if status == "failed":
             failed.append(check_id)
+
         output = (result.stdout or "") + (result.stderr or "")
-        evidence_relative = pathlib.Path(".artifacts") / "fitness" / run_id / f"{check_id}.log"
-        (repo_root / evidence_relative).write_text(output, encoding="utf-8")
-        summary = f"exit code {result.returncode}"
+        log_relative = pathlib.Path(".artifacts") / "checks" / f"{check_id}.log"
+        (repo_root / log_relative).write_text(output, encoding="utf-8")
         check_results.append(
             {
                 "id": check_id,
                 "status": status,
+                "exit_code": result.returncode,
                 "duration_ms": duration_ms,
-                "summary": summary,
-                "evidence_path": str(evidence_relative),
+                "log_path": str(log_relative),
             }
         )
-        combined_log.append(f"{check_id}: {status} ({summary})")
         print(f"{check_id}: {status}")
 
     report = {
         "schema_version": 1,
-        "run_id": run_id,
-        "profile": arguments.profile,
         "started_at": started_at.isoformat().replace("+00:00", "Z"),
         "environment": environment(repo_root),
         "git": git_state(repo_root),
-        "eligible": not failed,
+        "passed": not failed,
         "checks": check_results,
-        "fitness_vector": {},
-        "failed_hard_gates": failed,
+        "failed_checks": failed,
     }
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
-    write_atomic(fitness_root / f"{run_id}.json", payload)
-    write_atomic(fitness_root / "latest.json", payload)
-    write_atomic(fitness_root / f"{run_id}.log", "\n".join(combined_log) + "\n")
-    print("report: .artifacts/fitness/latest.json")
+    write_atomic(reports_root / "latest.json", payload)
+    print("report: .artifacts/checks/latest.json")
     return 1 if failed else 0
 
 

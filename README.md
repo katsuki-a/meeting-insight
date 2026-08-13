@@ -6,7 +6,7 @@
 
 プロダクト判断、Web調査、推奨アーキテクチャ、データ契約は [プロダクト・技術設計書](docs/product-architecture.md) を参照してください。実装順序、モジュール境界、Work package、受け入れ条件は [詳細実装計画](docs/implementation-plan.md) にまとめています。
 
-実装は期間見積もりではなく、test・architecture・privacy・citation integrityを適応度関数としてHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
+実装は期間見積もりではなく、test・architecture・privacy・citation integrityをHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
 現在はWP-01まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、依存境界を検証するHarnessを含みます。
 
@@ -16,10 +16,10 @@
 
 ```sh
 Scripts/bootstrap.sh
+Scripts/check.sh
 Scripts/check.sh build
 Scripts/check.sh test
 Scripts/check.sh cli
-Scripts/fitness.sh fast
 ```
 
-`fitness fast` はbuild、schema contractを含む全test、dependency architecture、privacy lintを実行し、機械可読reportを `.artifacts/fitness/latest.json` に生成します。`full` と `hardware` は対応するintegration・実機checkを実装してから有効化します。
+引数なしの `Scripts/check.sh` は、build、schema contractを含む全test、dependency architecture、privacy lintを実行し、結果を `.artifacts/checks/latest.json` に保存します。引数付きのcommandは個別確認用です。

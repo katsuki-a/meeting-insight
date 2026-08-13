@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "id": "BUILD-001",
+      "command": ["Scripts/check.sh", "build"]
+    },
+    {
+      "id": "TEST-001",
+      "command": ["Scripts/check.sh", "test"]
+    },
+    {
+      "id": "ARCH-DEPENDENCY-001",
+      "command": ["Scripts/check.sh", "architecture"]
+    },
+    {
+      "id": "PRIVACY-LINT-001",
+      "command": ["Scripts/check.sh", "privacy"]
+    }
+  ]
+}

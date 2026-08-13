@@ -656,13 +656,13 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 
 ## 15. 実装計画
 
-実装は期間ではなく、Harnessで観測できる適応度関数を満たすまで反復するLoop engineeringとして進める。Issue・Pull Request単位の依存関係、具体的な型、fitness manifest、architecture rule、受け入れ条件、実機Gateは [詳細実装計画](implementation-plan.md) を参照する。
+実装は期間ではなく、Harnessで観測できるcheckを満たすまで反復するLoop engineeringとして進める。Issue・Pull Request単位の依存関係、具体的な型、check manifest、architecture rule、受け入れ条件、実機Gateは [詳細実装計画](implementation-plan.md) を参照する。
 
-すべてのloopは、fixture・失敗test・architecture ruleを先に追加し、最小実装、`fitness fast`、`fitness full`、baseline比較の順に進める。build、test、architecture、privacy、citation integrityは交換不能なhard gateとし、速度や正答率の改善で相殺しない。
+すべてのloopは、fixture・失敗test・architecture ruleを先に追加し、最小実装、targeted check、`Scripts/check.sh` の順に進める。build、test、architecture、privacy、citation integrityは交換不能なhard gateとし、速度や正答率の改善で相殺しない。
 
 ### Loop 0: HarnessとEvidence path
 
-- fitness manifestとarchitecture dependency ruleを作る
+- check manifestとarchitecture dependency ruleを作る
 - Research Scope、repository、local knowledge rootのcontractを作る
 - 手入力の質問を `codex exec` へ渡す
 - JSON Schema準拠のカードを得る
@@ -671,7 +671,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 
 継続条件:
 
-- clean checkoutで `fitness fast` が成功する
+- clean checkoutで `Scripts/check.sh` が成功する
 - 典型質問10件で8件以上が正しいrepoへ到達する
 - citation整合率100%
 - P50 15秒、P95 35秒以内
@@ -690,7 +690,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 
 継続条件:
 
-- `fitness full` と実機capture/asr/lifecycle fitnessが成功する
+- release用integration checkと実機capture/asr/lifecycle checkが成功する
 - 30分の日本語Zoom音声でクラッシュしない
 - Stop後にcapture、ASR task、agent processが残らない
 
@@ -719,7 +719,7 @@ Mac App StoreではApp Sandboxが必須で、ユーザー選択フォルダへ�
 - 対応OS、Mac、Codex / Claude Code versionを明記する
 - 2〜3分のデモ動画またはGIFを作る
 - 設計判断と失敗を含む技術ブログを公開する
-- `fitness full` と `fitness hardware` の公開用baselineを含める
+- release用integration checkと実機checkの公開可能な結果を含める
 
 Zoom RTMSは、ローカルMVP完成後の発展記事・追加実装として扱う。公開を遅らせてまでbackendやMarketplace審査を先に導入しない。
 

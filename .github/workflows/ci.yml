@@ -6,17 +6,17 @@ on:
     branches: [main]
 
 jobs:
-  fitness-fast:
+  checks:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode 26
         run: sudo xcode-select --switch /Applications/Xcode_26.3.app
-      - name: Run fast fitness profile
-        run: Scripts/fitness.sh fast
-      - name: Upload fitness report
+      - name: Run checks
+        run: Scripts/check.sh
+      - name: Upload check report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fitness-fast
-          path: .artifacts/fitness/
+          name: checks
+          path: .artifacts/checks/
