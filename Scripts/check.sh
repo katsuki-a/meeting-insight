@@ -37,6 +37,10 @@ test_package() {
   /usr/bin/xcrun swift test "${swift_arguments[@]}"
 }
 
+test_package_filter() {
+  /usr/bin/xcrun swift test "${swift_arguments[@]}" --filter "$1"
+}
+
 test_app() {
   /usr/bin/xcodebuild \
     -project "$repo_root/MeetingInsight.xcodeproj" \
@@ -62,6 +66,15 @@ case "${1:-}" in
   fixture)
     /usr/bin/python3 "$repo_root/Scripts/fixture_check.py"
     ;;
+  scope-containment)
+    test_package_filter LocalKnowledgeContainmentTests
+    ;;
+  scope-source)
+    test_package_filter 'RepositorySnapshotTests|RepoResolverTests|ResearchScopeStoreTests|GitProcessTests'
+    ;;
+  knowledge-snapshot)
+    test_package_filter KnowledgeSnapshotTests
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -73,7 +86,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|architecture|privacy|cli]"
     exit 64
     ;;
 esac

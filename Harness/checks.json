@@ -13,6 +13,18 @@
       "command": ["Scripts/check.sh", "fixture"]
     },
     {
+      "id": "SCOPE-CONTAINMENT-001",
+      "command": ["Scripts/check.sh", "scope-containment"]
+    },
+    {
+      "id": "SCOPE-SOURCE-001",
+      "command": ["Scripts/check.sh", "scope-source"]
+    },
+    {
+      "id": "KNOWLEDGE-SNAPSHOT-001",
+      "command": ["Scripts/check.sh", "knowledge-snapshot"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },

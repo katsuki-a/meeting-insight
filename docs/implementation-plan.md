@@ -800,6 +800,8 @@ actor InvestigationQueue {
 
 ### WP-03: Research Scope snapshot（WP-01/02後）
 
+ステータス: 完了（2026-08-14）
+
 成果物:
 
 - ResearchScopeStore、GitProcess、RepoResolver、RepoSnapshot、KnowledgeSnapshot。

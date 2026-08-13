@@ -59,6 +59,10 @@ let package = Package(
             name: "DomainTests",
             dependencies: ["MeetingInsightDomain"],
             resources: [.process("Fixtures")]
+        ),
+        .testTarget(
+            name: "RepositoryTests",
+            dependencies: ["MeetingInsightDomain", "MeetingInsightRepository"]
         )
     ],
     swiftLanguageModes: [.v6]
