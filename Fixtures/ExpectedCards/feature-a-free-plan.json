@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "request_id": "22222222-2222-4222-8222-222222222222",
+  "verdict": "contradicted",
+  "headline": "無料プランで使えるという説明は実装と矛盾",
+  "answer": "remote flagだけでは利用できません。実装は有料プランも必須としており、全プランで使えるというWikiは古い状態です。",
+  "scope": {
+    "environment": "synthetic-main",
+    "repositories": [
+      {
+        "name": "DemoRepo",
+        "commit_sha": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+        "dirty_worktree": false
+      }
+    ],
+    "knowledge_roots": [
+      {
+        "name": "DemoWiki",
+        "revision": "f31242bfbc5e3400a931aa66b89ffe49e8e22ff39aba47e1278de8f63f64342f",
+        "revision_kind": "content_digest"
+      }
+    ],
+    "production_revision_verified": false
+  },
+  "claims": [
+    {
+      "text": "実装では有料プランとremote flagの両方が必要です。",
+      "kind": "observation",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_name": "DemoRepo",
+          "source_revision": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+          "path": "Sources/DemoApp/FeatureAccessPolicy.swift",
+          "line_start": 10,
+          "line_end": 15,
+          "quote": "    public static func canUseFeatureA(\n        account: AccountContext,\n        remoteFlagEnabled: Bool\n    ) -> Bool {\n        account.isPaidPlan && remoteFlagEnabled\n    }",
+          "quote_sha256": "c443e369cc56f7de3d60b0fa3c33dae7be2e9b1da253429bf14776f49623ebf7"
+        }
+      ]
+    },
+    {
+      "text": "DemoWikiには全プランで使えるという古い説明が残っています。",
+      "kind": "observation",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "source_type": "local_wiki",
+          "source_name": "DemoWiki",
+          "source_revision": "f31242bfbc5e3400a931aa66b89ffe49e8e22ff39aba47e1278de8f63f64342f",
+          "path": "features/feature-a.md",
+          "line_start": 8,
+          "line_end": 8,
+          "quote": "Feature A is available to every plan when `remote_flag_enabled` is true.",
+          "quote_sha256": "4a0333e0efe55170d7844556ec473ed36a48e544c1ff31617f7d359ce1ca95b5"
+        }
+      ]
+    }
+  ],
+  "open_questions": [
+    "DemoWikiを現行のplan条件へ更新する必要があります。"
+  ]
+}

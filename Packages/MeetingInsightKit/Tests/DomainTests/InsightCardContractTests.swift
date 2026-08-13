@@ -55,6 +55,23 @@ final class InsightCardContractTests: XCTestCase {
         XCTAssertEqual(try jsonObject(from: bundled), try jsonObject(from: canonical))
     }
 
+    func testDemoExpectedCardsDecodeWithAllRequiredVerdicts() throws {
+        let cardsRoot = repositoryRootURL().appendingPathComponent("Fixtures/ExpectedCards")
+        let cardNames = [
+            "feature-a-paid-and-flag",
+            "feature-a-free-plan",
+            "feature-b-retention"
+        ]
+
+        let cards = try cardNames.map { name in
+            let data = try Data(contentsOf: cardsRoot.appendingPathComponent("\(name).json"))
+            return try InsightCardCoding.decoder().decode(AgentInsightCard.self, from: data)
+        }
+
+        XCTAssertEqual(Set(cards.map(\.verdict)), [.verified, .contradicted, .notFound])
+        XCTAssertEqual(Set(cards.map(\.requestID)).count, 3)
+    }
+
     func testSchemaDescribesSwiftContractVersionAndEnums() throws {
         let schema = try XCTUnwrap(try jsonObject(from: InsightCardSchema.data()) as? [String: Any])
         let properties = try XCTUnwrap(schema["properties"] as? [String: Any])
@@ -145,12 +162,16 @@ final class InsightCardContractTests: XCTestCase {
     }
 
     private func canonicalSchemaURL() -> URL {
+        repositoryRootURL()
+            .appendingPathComponent("Schemas/insight-card.schema.json")
+    }
+
+    private func repositoryRootURL() -> URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-            .appendingPathComponent("Schemas/insight-card.schema.json")
     }
 }

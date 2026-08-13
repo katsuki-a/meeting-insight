@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "request_id": "33333333-3333-4333-8333-333333333333",
+  "verdict": "not_found",
+  "headline": "Feature Bの保持期間はscope内で確認できない",
+  "answer": "選択されたDemoRepoとDemoWikiには、Feature Bまたは監査ログの保持期間を示す根拠がありません。",
+  "scope": {
+    "environment": "synthetic-main",
+    "repositories": [
+      {
+        "name": "DemoRepo",
+        "commit_sha": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+        "dirty_worktree": false
+      }
+    ],
+    "knowledge_roots": [
+      {
+        "name": "DemoWiki",
+        "revision": "f31242bfbc5e3400a931aa66b89ffe49e8e22ff39aba47e1278de8f63f64342f",
+        "revision_kind": "content_digest"
+      }
+    ],
+    "production_revision_verified": false
+  },
+  "claims": [],
+  "open_questions": [
+    "Feature Bを含むrepositoryまたはknowledge rootが別に存在するか確認してください。"
+  ]
+}

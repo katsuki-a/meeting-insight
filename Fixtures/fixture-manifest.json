@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "demo_repository": {
+    "source_path": "Fixtures/DemoRepo",
+    "expected_commit_sha": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+    "tracked_files": [
+      "Config/features.json",
+      "Package.swift",
+      "README.md",
+      "Sources/DemoApp/FeatureAccessPolicy.swift",
+      "Tests/DemoAppTests/FeatureAccessPolicyTests.swift"
+    ]
+  },
+  "demo_wiki": {
+    "root_path": "Fixtures/DemoWiki",
+    "revision_algorithm": "sha256(relative-path NUL content NUL)",
+    "expected_revision": "f31242bfbc5e3400a931aa66b89ffe49e8e22ff39aba47e1278de8f63f64342f",
+    "files": [
+      "features/feature-a.md"
+    ]
+  },
+  "questions_path": "Fixtures/questions.json"
+}

@@ -9,6 +9,10 @@
       "command": ["Scripts/check.sh", "test"]
     },
     {
+      "id": "FIXTURE-DEMO-001",
+      "command": ["Scripts/check.sh", "fixture"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },

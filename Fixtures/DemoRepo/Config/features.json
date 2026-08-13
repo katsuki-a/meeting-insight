@@ -1,0 +1,7 @@
+{
+  "features": {
+    "feature_a": {
+      "remote_flag_enabled": true
+    }
+  }
+}

@@ -785,6 +785,8 @@ actor InvestigationQueue {
 
 ### WP-02: Demo repository fixture（WP-00後）
 
+ステータス: 完了（2026-08-14）
+
 成果物:
 
 - Feature Aのplan条件、test、設定を含む小さいGit repo fixtureと、意図的に古い説明を持つ独立したDemoWiki fixture。
@@ -1223,7 +1225,9 @@ stateDiagram-v2
 | Work package | 新たに有効化する主なcheck |
 | --- | --- |
 | WP-00 | `BUILD-001`、`TEST-001`、`ARCH-DEPENDENCY-001`、`PRIVACY-LINT-001` |
-| WP-01〜03 | `TEST-001`内のschema contract、`ARCH-DEPENDENCY-001`、`SCOPE-CONTAINMENT-001`、`SCOPE-SOURCE-001`、`KNOWLEDGE-SNAPSHOT-001` |
+| WP-01 | `TEST-001`内のschema contract、`ARCH-DEPENDENCY-001` |
+| WP-02 | `FIXTURE-DEMO-001`（決定的SHA、3 verdict、引用hash、synthetic content） |
+| WP-03 | `SCOPE-CONTAINMENT-001`、`SCOPE-SOURCE-001`、`KNOWLEDGE-SNAPSHOT-001` |
 | WP-04 | `EVIDENCE-INTEGRITY-001` とmutation fixtures |
 | WP-05〜06 | `SECURITY-READONLY-001`、`SECURITY-SOURCE-001`、agent quality |
 | WP-07 | main-thread responsiveness、UI boundary |

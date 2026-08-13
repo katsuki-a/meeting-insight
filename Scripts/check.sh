@@ -59,6 +59,9 @@ case "${1:-}" in
     test_package
     test_app
     ;;
+  fixture)
+    /usr/bin/python3 "$repo_root/Scripts/fixture_check.py"
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -70,7 +73,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|architecture|privacy|cli]"
     exit 64
     ;;
 esac

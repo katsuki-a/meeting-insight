@@ -6,6 +6,7 @@ import os
 import pathlib
 import subprocess
 import time
+from typing import Optional
 
 
 def command_output(arguments: list[str], cwd: pathlib.Path) -> str:
@@ -28,6 +29,25 @@ def git_state(repo_root: pathlib.Path) -> dict[str, object]:
     commit = command_output(["/usr/bin/git", "rev-parse", "HEAD"], repo_root)
     dirty = bool(command_output(["/usr/bin/git", "status", "--porcelain=v1"], repo_root))
     return {"commit": commit, "dirty": dirty}
+
+
+def fixture_state(
+    repo_root: pathlib.Path,
+    check_results: list[dict[str, object]],
+) -> Optional[dict[str, object]]:
+    fixture_passed = any(
+        check["id"] == "FIXTURE-DEMO-001" and check["status"] == "passed"
+        for check in check_results
+    )
+    if not fixture_passed:
+        return None
+
+    report_path = repo_root / ".artifacts" / "fixtures" / "latest.json"
+    fixture_report = json.loads(report_path.read_text(encoding="utf-8"))
+    return {
+        "demo_repository": {"commit": fixture_report["demo_repository_commit"]},
+        "demo_wiki": {"revision": fixture_report["demo_wiki_revision"]},
+    }
 
 
 def write_atomic(path: pathlib.Path, payload: str) -> None:
@@ -90,6 +110,9 @@ def main() -> int:
         "checks": check_results,
         "failed_checks": failed,
     }
+    fixtures = fixture_state(repo_root, check_results)
+    if fixtures is not None:
+        report["fixtures"] = fixtures
     payload = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     write_atomic(reports_root / "latest.json", payload)
     print("report: .artifacts/checks/latest.json")

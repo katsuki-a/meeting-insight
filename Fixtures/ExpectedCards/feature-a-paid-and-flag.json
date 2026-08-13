@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "request_id": "11111111-1111-4111-8111-111111111111",
+  "verdict": "verified",
+  "headline": "Feature Aの利用条件は実装と一致",
+  "answer": "Feature Aは有料プランで、かつremote flagが有効な場合だけ利用できます。実装とtestが同じ条件を示しています。",
+  "scope": {
+    "environment": "synthetic-main",
+    "repositories": [
+      {
+        "name": "DemoRepo",
+        "commit_sha": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+        "dirty_worktree": false
+      }
+    ],
+    "knowledge_roots": [
+      {
+        "name": "DemoWiki",
+        "revision": "f31242bfbc5e3400a931aa66b89ffe49e8e22ff39aba47e1278de8f63f64342f",
+        "revision_kind": "content_digest"
+      }
+    ],
+    "production_revision_verified": false
+  },
+  "claims": [
+    {
+      "text": "Feature Aの判定は有料プランとremote flagの論理積です。",
+      "kind": "observation",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "source_type": "code",
+          "source_name": "DemoRepo",
+          "source_revision": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+          "path": "Sources/DemoApp/FeatureAccessPolicy.swift",
+          "line_start": 10,
+          "line_end": 15,
+          "quote": "    public static func canUseFeatureA(\n        account: AccountContext,\n        remoteFlagEnabled: Bool\n    ) -> Bool {\n        account.isPaidPlan && remoteFlagEnabled\n    }",
+          "quote_sha256": "c443e369cc56f7de3d60b0fa3c33dae7be2e9b1da253429bf14776f49623ebf7"
+        },
+        {
+          "source_type": "test",
+          "source_name": "DemoRepo",
+          "source_revision": "dff70ec90a888327b71dfd07db0ece964ab7d56a",
+          "path": "Tests/DemoAppTests/FeatureAccessPolicyTests.swift",
+          "line_start": 5,
+          "line_end": 24,
+          "quote": "    func testFeatureARequiresPaidPlanAndEnabledFlag() {\n        XCTAssertTrue(\n            FeatureAccessPolicy.canUseFeatureA(\n                account: AccountContext(isPaidPlan: true),\n                remoteFlagEnabled: true\n            )\n        )\n        XCTAssertFalse(\n            FeatureAccessPolicy.canUseFeatureA(\n                account: AccountContext(isPaidPlan: false),\n                remoteFlagEnabled: true\n            )\n        )\n        XCTAssertFalse(\n            FeatureAccessPolicy.canUseFeatureA(\n                account: AccountContext(isPaidPlan: true),\n                remoteFlagEnabled: false\n            )\n        )\n    }",
+          "quote_sha256": "4181772975656100cade0ee84740ee572e3111ccdc04d96161f2ac3c0f834b19"
+        }
+      ]
+    }
+  ],
+  "open_questions": []
+}

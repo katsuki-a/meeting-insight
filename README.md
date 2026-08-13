@@ -8,7 +8,7 @@
 
 実装は期間見積もりではなく、test・architecture・privacy・citation integrityをHarnessで検証し、hard gateを満たすまで小さい変更を反復するLoop engineeringで進めます。
 
-現在はWP-01まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、依存境界を検証するHarnessを含みます。
+現在はWP-02まで実装済みです。macOS 26以上を対象にしたメニューバーアプリ、同じコアを使う開発用CLI、Domain contract、version 1のInsight Card schema、決定的に生成できるsynthetic DemoRepo / DemoWiki、依存境界を検証するHarnessを含みます。
 
 ## Build
 
@@ -19,7 +19,10 @@ Scripts/bootstrap.sh
 Scripts/check.sh
 Scripts/check.sh build
 Scripts/check.sh test
+Scripts/check.sh fixture
 Scripts/check.sh cli
 ```
 
-引数なしの `Scripts/check.sh` は、build、schema contractを含む全test、dependency architecture、privacy lintを実行し、結果を `.artifacts/checks/latest.json` に保存します。引数付きのcommandは個別確認用です。
+引数なしの `Scripts/check.sh` は、build、schema contractを含む全test、Demo fixture contract、dependency architecture、privacy lintを実行し、結果を `.artifacts/checks/latest.json` に保存します。fixtureを使うreportにはDemoRepoのcommit SHAとDemoWikiのcontent revisionも記録します。引数付きのcommandは個別確認用です。
+
+`Scripts/make-demo-repo.sh <output-path>` は、Feature Aのplan条件・test・設定を含む独立Git repositoryを生成します。`Fixtures/questions.json` と `Fixtures/ExpectedCards/` は `verified`、`contradicted`、`not_found` の正答を1件ずつ固定しています。

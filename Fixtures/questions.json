@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "feature-a-paid-and-flag",
+      "request_id": "11111111-1111-4111-8111-111111111111",
+      "spoken_question": "Feature Aは有料プランかつremote flag有効時だけ使える、で合っていますか？",
+      "expected_verdict": "verified",
+      "required_evidence_paths": [
+        "Sources/DemoApp/FeatureAccessPolicy.swift",
+        "Tests/DemoAppTests/FeatureAccessPolicyTests.swift"
+      ],
+      "forbidden_claims": [],
+      "expected_card": "Fixtures/ExpectedCards/feature-a-paid-and-flag.json"
+    },
+    {
+      "id": "feature-a-free-plan",
+      "request_id": "22222222-2222-4222-8222-222222222222",
+      "spoken_question": "Feature Aはremote flagが有効なら無料プランでも使えますか？",
+      "expected_verdict": "contradicted",
+      "required_evidence_paths": [
+        "Sources/DemoApp/FeatureAccessPolicy.swift",
+        "features/feature-a.md"
+      ],
+      "forbidden_claims": [
+        "古いWikiの説明だけを根拠に無料プランで使えると断定する"
+      ],
+      "expected_card": "Fixtures/ExpectedCards/feature-a-free-plan.json"
+    },
+    {
+      "id": "feature-b-retention",
+      "request_id": "33333333-3333-4333-8333-333333333333",
+      "spoken_question": "Feature Bは監査ログを30日保持しますか？",
+      "expected_verdict": "not_found",
+      "required_evidence_paths": [],
+      "forbidden_claims": [
+        "Feature Bの保持期間を推測する"
+      ],
+      "expected_card": "Fixtures/ExpectedCards/feature-b-retention.json"
+    }
+  ]
+}
