@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"019ffbdf-b2ee-72b1-92d6-6a6882d23023"}
+{"type":"turn.started"}
+{"type":"future.event","payload":{"forward_compatible":true}}
+{"type":"item.completed","item":{"id":"item_1","type":"reasoning","text":"bounded reasoning"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"__CARD_JSON__"}}
+{"type":"turn.completed","usage":{"input_tokens":1200,"cached_input_tokens":200,"output_tokens":300,"reasoning_output_tokens":100}}

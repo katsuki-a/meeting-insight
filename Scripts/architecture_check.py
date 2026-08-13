@@ -76,6 +76,20 @@ def validate_package(package: dict, package_root: pathlib.Path, rules: dict) -> 
                         path = source.relative_to(package_root)
                         errors.append(f"{path}: {rule['id']} matched {pattern!r}")
 
+    for rule in rules.get("source_ownership", []):
+        allowed_modules = set(rule["allowed_modules"])
+        for module_root in sources_root.iterdir():
+            if not module_root.is_dir() or module_root.name in allowed_modules:
+                continue
+            for source in module_root.glob("**/*.swift"):
+                text = source.read_text(encoding="utf-8")
+                for symbol in rule["symbols"]:
+                    if symbol in text:
+                        path = source.relative_to(package_root)
+                        errors.append(
+                            f"{path}: {rule['id']} uses owned symbol {symbol!r}"
+                        )
+
     return errors
 
 

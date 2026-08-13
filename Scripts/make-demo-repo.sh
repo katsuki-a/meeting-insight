@@ -19,7 +19,8 @@ fi
 
 /bin/mkdir -p "${output_path:h}"
 /bin/mkdir "$output_path"
-/bin/cp -R "$source_root/." "$output_path/"
+/bin/cp "$source_root/Package.swift" "$source_root/README.md" "$output_path/"
+/bin/cp -R "$source_root/Config" "$source_root/Sources" "$source_root/Tests" "$output_path/"
 
 /usr/bin/git -C "$output_path" init --quiet --initial-branch=main
 /usr/bin/git -C "$output_path" config core.autocrlf false

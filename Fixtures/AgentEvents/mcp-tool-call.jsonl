@@ -1,0 +1,2 @@
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_mcp","type":"mcp_tool_call","server":"unapproved","tool":"search"}}

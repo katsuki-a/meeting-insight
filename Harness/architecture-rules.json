@@ -27,5 +27,12 @@
       "modules": ["MeetingInsightResearch"],
       "patterns": ["/bin/sh", "/bin/zsh", "bash -lc", "zsh -lc"]
     }
+  ],
+  "source_ownership": [
+    {
+      "id": "agent-process-owned-by-research",
+      "symbols": ["CodexProcessRunner", "CodexCommandBuilder", "CodexEventDecoder"],
+      "allowed_modules": ["MeetingInsightResearch"]
+    }
   ]
 }

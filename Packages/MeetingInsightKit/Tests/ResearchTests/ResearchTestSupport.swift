@@ -3,6 +3,15 @@ import Foundation
 import MeetingInsightDomain
 import MeetingInsightRepository
 
+func repositoryRoot() -> URL {
+    URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+}
+
 struct ResearchFixture {
     let temporaryRoot: URL
     let repositoryURL: URL
@@ -11,12 +20,7 @@ struct ResearchFixture {
     let knowledgeSnapshot: KnowledgeSnapshot
 
     init() throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
+        let repositoryRoot = repositoryRoot()
         temporaryRoot = FileManager.default.temporaryDirectory
             .appendingPathComponent("meeting-insight-research-tests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: temporaryRoot, withIntermediateDirectories: true)
@@ -70,12 +74,7 @@ struct ResearchFixture {
     }
 
     func card(named name: String) throws -> AgentInsightCard {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
+        let repositoryRoot = repositoryRoot()
         let data = try Data(
             contentsOf: repositoryRoot.appendingPathComponent("Fixtures/ExpectedCards/\(name).json")
         )

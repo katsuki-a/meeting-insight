@@ -29,7 +29,19 @@
       "command": ["Scripts/check.sh", "evidence-integrity"]
     },
     {
+      "id": "SECURITY-READONLY-001",
+      "command": ["Scripts/check.sh", "agent-readonly"]
+    },
+    {
+      "id": "SECURITY-SOURCE-001",
+      "command": ["Scripts/check.sh", "agent-source-policy"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
+      "command": ["Scripts/check.sh", "architecture"]
+    },
+    {
+      "id": "ARCH-AGENT-001",
       "command": ["Scripts/check.sh", "architecture"]
     },
     {

@@ -29,6 +29,7 @@ build_app() {
     -scheme MeetingInsight \
     -destination 'platform=macOS,arch=arm64' \
     -derivedDataPath "$artifacts_root/DerivedData" \
+    -packageCachePath "$artifacts_root/cache/xcode-packages" \
     CODE_SIGNING_ALLOWED=NO \
     build
 }
@@ -47,6 +48,7 @@ test_app() {
     -scheme MeetingInsight \
     -destination 'platform=macOS,arch=arm64' \
     -derivedDataPath "$artifacts_root/DerivedData" \
+    -packageCachePath "$artifacts_root/cache/xcode-packages" \
     CODE_SIGNING_ALLOWED=NO \
     test
 }
@@ -78,6 +80,12 @@ case "${1:-}" in
   evidence-integrity)
     test_package_filter 'EvidenceValidatorTests|ConfidenceCalculatorTests'
     ;;
+  agent-readonly)
+    test_package_filter 'CodexCommandBuilderTests|AgentPromptBuilderTests|CodexProcessRunnerTests|CodexExecutableResolverTests|CodexDoctorTests'
+    ;;
+  agent-source-policy)
+    test_package_filter 'CodexEventDecoderTests|CodexSourcePolicyTests'
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -89,7 +97,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|architecture|privacy|cli]"
     exit 64
     ;;
 esac

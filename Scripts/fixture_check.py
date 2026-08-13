@@ -91,7 +91,11 @@ def build_repository_twice(
     tracked = run(["/usr/bin/git", "ls-files"], first).splitlines()
     require(tracked == manifest["tracked_files"], "DemoRepo tracked files differ from manifest")
     source_root = repo_root / str(manifest["source_path"])
-    source_files = sorted(path.relative_to(source_root).as_posix() for path in source_root.rglob("*") if path.is_file())
+    source_files = sorted(
+        path.relative_to(source_root).as_posix()
+        for path in source_root.rglob("*")
+        if path.is_file() and ".build" not in path.relative_to(source_root).parts
+    )
     require(source_files == tracked, "DemoRepo source files differ from manifest")
 
     run(
@@ -215,7 +219,7 @@ def verify_synthetic_content(repo_root: pathlib.Path) -> None:
     ]
     for fixture_root in fixture_roots:
         for path in fixture_root.rglob("*"):
-            if not path.is_file():
+            if not path.is_file() or ".build" in path.relative_to(fixture_root).parts:
                 continue
             text = path.read_text(encoding="utf-8")
             for banned in BANNED_FIXTURE_TEXT:
