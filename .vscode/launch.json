@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:meeting-insight}/Packages/MeetingInsightKit",
+            "name": "Debug meeting-insight (Packages/MeetingInsightKit)",
+            "target": "meeting-insight",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug meeting-insight (Packages/MeetingInsightKit)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:meeting-insight}/Packages/MeetingInsightKit",
+            "name": "Release meeting-insight (Packages/MeetingInsightKit)",
+            "target": "meeting-insight",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release meeting-insight (Packages/MeetingInsightKit)"
+        }
+    ]
+}
