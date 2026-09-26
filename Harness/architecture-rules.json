@@ -40,6 +40,11 @@
       "id": "ui-does-not-own-process-or-jsonl",
       "roots": ["App"],
       "patterns": ["Process(", "GitProcess", "CodexProcessRunner", "CodexEventDecoder", "JSONSerialization"]
+    },
+    {
+      "id": "capture-does-not-register-video-output",
+      "roots": ["Packages/MeetingInsightKit/Sources/MeetingInsightCapture"],
+      "patterns": ["type: .screen"]
     }
   ]
 }

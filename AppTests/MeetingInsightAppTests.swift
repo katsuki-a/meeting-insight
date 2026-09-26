@@ -1,10 +1,34 @@
 import Foundation
+import MeetingInsightCapture
 import MeetingInsightOrchestration
 @testable import MeetingInsight
 import XCTest
 
 @MainActor
 final class MeetingInsightAppTests: XCTestCase {
+    func testApplicationLaunchSchedulesMainWindowActivation() async {
+        let activated = expectation(description: "main window activated")
+        var requestedActivationPolicy: NSApplication.ActivationPolicy?
+        var activationAttempts = 0
+        let delegate = MeetingInsightApplicationDelegate(
+            setActivationPolicy: { requestedActivationPolicy = $0 },
+            retryDelay: .zero,
+            activateMainWindow: {
+                activationAttempts += 1
+                guard activationAttempts == 3 else { return false }
+                activated.fulfill()
+                return true
+            }
+        )
+
+        delegate.applicationDidFinishLaunching(
+            Notification(name: NSApplication.didFinishLaunchingNotification)
+        )
+        await fulfillment(of: [activated], timeout: 1)
+        XCTAssertEqual(requestedActivationPolicy, .regular)
+        XCTAssertEqual(activationAttempts, 3)
+    }
+
     func testLoadShowsActiveScopeSourcesAndPrivacyBoundary() async throws {
         let scope = AppScopeSummary.fixture
         let service = FakeAppService(
@@ -76,6 +100,48 @@ final class MeetingInsightAppTests: XCTestCase {
         XCTAssertNil(model.activeRequestID)
     }
 
+    func testCaptureStartRemainsResponsiveAndStopReleasesService() async throws {
+        let scope = AppScopeSummary.fixture
+        let captureService = FakeCaptureService()
+        let model = AppModel(
+            service: FakeAppService(
+                bootstrap: AppBootstrap(
+                    scopes: [scope],
+                    activeScopeID: scope.id,
+                    hasAcknowledgedPrivacy: true,
+                    codexExecutablePath: nil
+                )
+            ),
+            captureService: captureService
+        )
+        model.load()
+        try await waitUntil { model.hasAcknowledgedPrivacy }
+
+        model.refreshCaptureApplications()
+        try await waitUntil { model.captureApplications.count == 1 }
+        model.selectedCaptureApplicationID = model.captureApplications[0].id
+        model.startAudioCapture()
+        try await waitUntil { model.captureState == .capturing }
+        model.question = "Main actor remains responsive during capture"
+        XCTAssertEqual(model.question, "Main actor remains responsive during capture")
+        await captureService.emit(
+            .meter(
+                CaptureMeterSample(
+                    source: .microphone,
+                    level: PCMMeterLevel(peak: 0.8, rootMeanSquare: 0.4),
+                    presentationTime: 1,
+                    frameCount: 480
+                )
+            )
+        )
+        try await waitUntil { model.microphoneMeter.rootMeanSquare == 0.4 }
+
+        model.stopAudioCapture()
+        try await waitUntil { model.captureState == .idle }
+        let stopCount = await captureService.stopCount
+        XCTAssertEqual(stopCount, 1)
+    }
+
     private func waitUntil(
         _ condition: @escaping @MainActor () async -> Bool
     ) async throws {
@@ -84,6 +150,42 @@ final class MeetingInsightAppTests: XCTestCase {
             try await Task.sleep(for: .milliseconds(10))
         }
         XCTFail("Condition was not met")
+    }
+}
+
+private actor FakeCaptureService: AudioCaptureServicing {
+    private(set) var isCapturing = false
+    private(set) var stopCount = 0
+    private var continuation: AsyncStream<CaptureEvent>.Continuation?
+
+    func applications() async throws -> [CaptureApplication] {
+        [
+            CaptureApplication(
+                processID: 42,
+                bundleIdentifier: "synthetic.meeting",
+                applicationName: "Synthetic Meeting"
+            )
+        ]
+    }
+
+    func start(applicationID: CaptureApplication.ID) async throws -> AsyncStream<CaptureEvent> {
+        XCTAssertEqual(applicationID, 42)
+        isCapturing = true
+        let pair = AsyncStream<CaptureEvent>.makeStream()
+        continuation = pair.continuation
+        return pair.stream
+    }
+
+    func stop() async {
+        isCapturing = false
+        stopCount += 1
+        continuation?.yield(.stopped)
+        continuation?.finish()
+        continuation = nil
+    }
+
+    func emit(_ event: CaptureEvent) {
+        continuation?.yield(event)
     }
 }
 

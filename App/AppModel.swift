@@ -1,4 +1,5 @@
 import Foundation
+import MeetingInsightCapture
 import MeetingInsightOrchestration
 import Observation
 
@@ -7,11 +8,21 @@ enum AppSessionState: String, Equatable {
     case investigating = "Investigating"
 }
 
+enum CaptureUIState: String, Equatable {
+    case idle = "Capture idle"
+    case loading = "Loading apps…"
+    case starting = "Starting capture…"
+    case capturing = "Capturing"
+    case stopping = "Stopping capture…"
+}
+
 @MainActor
 @Observable
 final class AppModel {
     private let service: any MeetingInsightAppServicing
+    private let captureService: any AudioCaptureServicing
     private var investigationTask: Task<Void, Never>?
+    private var captureEventsTask: Task<Void, Never>?
     private var hasStartedLoading = false
 
     var sessionState: AppSessionState = .idle
@@ -24,6 +35,14 @@ final class AppModel {
     var errorMessage: String?
     var activeRequestID: UUID?
 
+    var captureState: CaptureUIState = .idle
+    var captureApplications: [CaptureApplication] = []
+    var selectedCaptureApplicationID: CaptureApplication.ID?
+    var applicationAudioMeter = PCMMeterLevel.silence
+    var microphoneMeter = PCMMeterLevel.silence
+    var captureMetrics: CaptureStabilityReport?
+    var captureErrorMessage: String?
+
     var draftScopeName = ""
     var draftRepositories: [RepositoryDraft] = []
     var draftKnowledge: [KnowledgeDraft] = []
@@ -35,8 +54,12 @@ final class AppModel {
         return scopes.first { $0.id == activeScopeID }
     }
 
-    init(service: any MeetingInsightAppServicing) {
+    init(
+        service: any MeetingInsightAppServicing,
+        captureService: any AudioCaptureServicing = AudioCaptureService()
+    ) {
         self.service = service
+        self.captureService = captureService
     }
 
     func load() {
@@ -183,6 +206,98 @@ final class AppModel {
         investigationTask = nil
         Task { [service] in
             await service.cancel(requestID: requestID)
+        }
+    }
+
+    func refreshCaptureApplications() {
+        guard captureState == .idle else { return }
+        captureState = .loading
+        captureErrorMessage = nil
+        Task { [weak self, captureService] in
+            do {
+                let applications = try await captureService.applications()
+                guard let self else { return }
+                captureApplications = applications
+                if !applications.contains(where: { $0.id == selectedCaptureApplicationID }) {
+                    selectedCaptureApplicationID = applications.first(where: {
+                        $0.applicationName.localizedCaseInsensitiveContains("zoom")
+                    })?.id
+                }
+                captureState = .idle
+            } catch {
+                guard let self else { return }
+                captureState = .idle
+                captureErrorMessage = "共有可能なアプリを取得できませんでした。Screen Recording権限を確認してください。"
+            }
+        }
+    }
+
+    func startAudioCapture() {
+        guard captureState == .idle, let applicationID = selectedCaptureApplicationID else { return }
+        guard hasAcknowledgedPrivacy else {
+            captureErrorMessage = "収音前にデータ境界を確認してください。"
+            return
+        }
+        captureState = .starting
+        captureErrorMessage = nil
+        applicationAudioMeter = .silence
+        microphoneMeter = .silence
+        captureMetrics = nil
+        captureEventsTask = Task { [weak self, captureService] in
+            do {
+                let events = try await captureService.start(applicationID: applicationID)
+                guard let self, captureEventsTask?.isCancelled == false else {
+                    await captureService.stop()
+                    return
+                }
+                captureState = .capturing
+                for await event in events {
+                    guard !Task.isCancelled else { return }
+                    consume(event)
+                }
+                if captureState != .idle {
+                    captureState = .idle
+                }
+            } catch is CancellationError {
+                self?.captureState = .idle
+            } catch {
+                guard let self else { return }
+                captureState = .idle
+                captureErrorMessage = "音声captureを開始できませんでした。権限と選択アプリを確認してください。"
+            }
+        }
+    }
+
+    func stopAudioCapture() {
+        guard captureState != .idle, captureState != .loading else { return }
+        captureState = .stopping
+        let task = captureEventsTask
+        Task { [weak self, captureService] in
+            await captureService.stop()
+            task?.cancel()
+            guard let self else { return }
+            captureEventsTask = nil
+            applicationAudioMeter = .silence
+            microphoneMeter = .silence
+            captureState = .idle
+        }
+    }
+
+    private func consume(_ event: CaptureEvent) {
+        switch event {
+        case .meter(let sample):
+            switch sample.source {
+            case .applicationAudio: applicationAudioMeter = sample.level
+            case .microphone: microphoneMeter = sample.level
+            }
+        case .metrics(let report):
+            captureMetrics = report
+        case .failed:
+            captureErrorMessage = "capture streamが停止しました。権限または選択アプリを確認してください。"
+            captureState = .idle
+            Task { [captureService] in await captureService.stop() }
+        case .stopped:
+            captureState = .idle
         }
     }
 

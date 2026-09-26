@@ -73,6 +73,10 @@ let package = Package(
             ]
         ),
         .testTarget(
+            name: "CaptureTests",
+            dependencies: ["MeetingInsightCapture"]
+        ),
+        .testTarget(
             name: "OrchestrationTests",
             dependencies: [
                 "MeetingInsightDomain",

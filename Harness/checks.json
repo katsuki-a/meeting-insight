@@ -49,6 +49,18 @@
       "command": ["Scripts/check.sh", "app-service"]
     },
     {
+      "id": "CAPTURE-SDK-001",
+      "command": ["Scripts/check.sh", "capture-sdk"]
+    },
+    {
+      "id": "CAPTURE-AUDIO-001",
+      "command": ["Scripts/check.sh", "audio-capture"]
+    },
+    {
+      "id": "PRIVACY-USAGE-001",
+      "command": ["Scripts/check.sh", "app-privacy"]
+    },
+    {
       "id": "ARCH-DEPENDENCY-001",
       "command": ["Scripts/check.sh", "architecture"]
     },
@@ -58,6 +70,10 @@
     },
     {
       "id": "ARCH-BOUNDARY-001",
+      "command": ["Scripts/check.sh", "architecture"]
+    },
+    {
+      "id": "ARCH-AUDIO-001",
       "command": ["Scripts/check.sh", "architecture"]
     },
     {

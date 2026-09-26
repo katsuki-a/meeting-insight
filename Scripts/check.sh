@@ -107,6 +107,20 @@ case "${1:-}" in
   app-service)
     test_package_filter 'AppSettingsStoreTests|MeetingInsightAppService'
     ;;
+  capture-sdk)
+    /usr/bin/python3 "$repo_root/Scripts/screen_capture_sdk_check.py"
+    ;;
+  audio-capture)
+    test_package_filter 'AudioCapture|PCMMeter|CaptureStability'
+    ;;
+  app-privacy)
+    app_plist="$artifacts_root/DerivedData/Build/Products/Debug/MeetingInsight.app/Contents/Info.plist"
+    for key in NSAudioCaptureUsageDescription NSMicrophoneUsageDescription NSScreenCaptureUsageDescription; do
+      /usr/bin/plutil -extract "$key" raw -o - "$app_plist" >/dev/null
+    done
+    [[ "$(/usr/bin/plutil -extract LSUIElement raw -o - "$app_plist")" == "false" ]]
+    print "capture privacy usage descriptions and regular app activation passed"
+    ;;
   architecture)
     "$repo_root/Scripts/architecture-check.sh"
     ;;
@@ -118,7 +132,7 @@ case "${1:-}" in
     "$artifacts_root/swiftpm-build/debug/meeting-insight" --help
     ;;
   *)
-    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|vertical-slice|app-shell|app-service|architecture|privacy|cli]"
+    print -u2 "usage: Scripts/check.sh [build|test|fixture|scope-containment|scope-source|knowledge-snapshot|evidence-integrity|agent-readonly|agent-source-policy|vertical-slice|app-shell|app-service|capture-sdk|audio-capture|app-privacy|architecture|privacy|cli]"
     exit 64
     ;;
 esac

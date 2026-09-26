@@ -1521,7 +1521,7 @@ App Store対応は別milestoneにし、外部CLI起動とrepo accessを維持し
 - [ ] DemoRepo / DemoWikiの質問と期待結果を先にcommitする。
 - [ ] 実Codex testはsynthetic repo以外を拒否するguardを入れる。
 - [ ] ScreenCaptureKit spike用にZoomのテスト会議を用意する。
-- [ ] 30分soak testの実施時刻、OS、hardware、CLI versionを記録するtemplateを作る。
+- [x] 30分soak testの実施時刻、OS、hardware、tool versionを記録するtemplateを作る（`docs/adr/0001-screencapturekit-gate-a.md`）。
 - [ ] 実装中に新しい外部送信や永続化を加える場合は、コードより先にprivacy tableを更新する。
 
 ## 17. 参照した現行仕様

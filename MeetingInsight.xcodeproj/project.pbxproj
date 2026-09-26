@@ -11,6 +11,7 @@
 		C10000000000000000000003 /* MeetingInsightOrchestration in Frameworks */ = {isa = PBXBuildFile; productRef = J10000000000000000000002 /* MeetingInsightOrchestration */; };
 		C10000000000000000000004 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* AppModel.swift */; };
 		C10000000000000000000005 /* AppViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* AppViews.swift */; };
+		C10000000000000000000006 /* MeetingInsightCapture in Frameworks */ = {isa = PBXBuildFile; productRef = J10000000000000000000003 /* MeetingInsightCapture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		B10000000000000000000005 /* MeetingInsight.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeetingInsight.entitlements; sourceTree = "<group>"; };
 		B10000000000000000000006 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		B10000000000000000000007 /* AppViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViews.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C10000000000000000000006 /* MeetingInsightCapture in Frameworks */,
 				C10000000000000000000003 /* MeetingInsightOrchestration in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,6 +78,7 @@
 				B10000000000000000000001 /* MeetingInsightApp.swift */,
 				B10000000000000000000006 /* AppModel.swift */,
 				B10000000000000000000007 /* AppViews.swift */,
+				B10000000000000000000008 /* Info.plist */,
 				B10000000000000000000005 /* MeetingInsight.entitlements */,
 			);
 			path = App;
@@ -103,6 +107,7 @@
 			dependencies = ();
 			name = MeetingInsight;
 			packageProductDependencies = (
+				J10000000000000000000003 /* MeetingInsightCapture */,
 				J10000000000000000000002 /* MeetingInsightOrchestration */,
 			);
 			productName = MeetingInsight;
@@ -228,9 +233,8 @@
 				CODE_SIGN_ENTITLEMENTS = App/MeetingInsight.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_LSUIElement = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -243,9 +247,8 @@
 				CODE_SIGN_ENTITLEMENTS = App/MeetingInsight.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_LSUIElement = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.katsuki.MeetingInsight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -302,6 +305,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = J10000000000000000000001 /* XCLocalSwiftPackageReference "MeetingInsightKit" */;
 			productName = MeetingInsightOrchestration;
+		};
+		J10000000000000000000003 /* MeetingInsightCapture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = J10000000000000000000001 /* XCLocalSwiftPackageReference "MeetingInsightKit" */;
+			productName = MeetingInsightCapture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

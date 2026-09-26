@@ -1,0 +1,16 @@
+{
+  "fixture_version": 1,
+  "sdk_version": "26.2",
+  "framework_version": "685.2.5.2",
+  "required_header_tokens": [
+    "SCStreamOutputTypeAudio",
+    "SCStreamOutputTypeMicrophone",
+    "capturesAudio",
+    "captureMicrophone",
+    "microphoneCaptureDeviceID",
+    "excludesCurrentProcessAudio",
+    "initWithDisplay:(SCDisplay *)display includingApplications:",
+    "addStreamOutput:(id<SCStreamOutput>)output type:",
+    "stopCaptureWithCompletionHandler:"
+  ]
+}
